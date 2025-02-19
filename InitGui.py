@@ -54,6 +54,7 @@ class eletroAlpha(Workbench):
                 "Draft_BSpline", 
                 "Draft_BezCurve", 
                 "Draft_Point", 
+                 
         ]
         self.appendToolbar("desenho", self.draftingtools)
         
@@ -70,6 +71,12 @@ class eletroAlpha(Workbench):
             "Draft_PathArray", 
         ]
         self.appendToolbar("Modificador", self.modify)
+        import Arch
+        self.bimtools = [
+              "Arch_Space",
+        ]
+        self.appendToolbar("BIM", self.bimtools)
+    
 
         import NewProject
         self.projectList=['newProjetctEletrical', 'newSpreadsheet']
@@ -79,7 +86,13 @@ class eletroAlpha(Workbench):
         self.componenents=['InsertComponent', 'InsertTugs', 'InsertEquipaments', 'InsertWire', 'InsertConduit', 'InsertCableTray']
         self.appendToolbar('Inserir Componentes', self.componenents)
 
+        import Reports
+        self.listreports = ['GenerateReport']
+        self.appendToolbar('Gerar o relatório da instalação', self.listreports)
 
+        import Tools
+        self.listTools = ["GetSpaces", "ReiniciarBancada"]
+        self.appendToolbar("Ferramentas", self.listTools)
 
         FreeCADGui.updateGui()
     def Activated(self):

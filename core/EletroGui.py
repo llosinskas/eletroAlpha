@@ -15,56 +15,74 @@ class MainDialog(QtGui.QDialog):
         self.initUI()
     
     def initUI(self):
-        self.setGeometry(QtCore.QRect(100, 100, 500, 500) )
-        self.setWindowTitle("Adicionar circuito elétrico")
+        layout = QtGui.QGridLayout(self)
+        label = QtGui.QLabel("Adicionar circuito elétrico", self)
+        layout.addWidget(label)
+
+
+        self.setWindowTitle("Adicionar circuito elétrico ")
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
         
-        self.label2 = QtGui.QLabel("Número de fase do circuito", self)
-        self.label2.move(5, 30)
+        self.label2 = QtGui.QLabel("Número de fase do circuito elétrico", self)
+        layout.addWidget(self.label2)
         
-        self.popupItens1 = ('Trifásico', 'Bifásico', 'Monofásico')
-        self.popup1 = QtGui.QComboBox(self)
-        self.popup1.addItems(self.popupItens1)
-        self.popup1.move(200, 30)
+        popupItens1 = ('Trifásico', 'Bifásico', 'Monofásico')
+        popup1 = QtGui.QComboBox(self)
+        popup1.addItems(popupItens1)
+        layout.addWidget(popup1)
 
         self.label2 = QtGui.QLabel("Método de instalação", self)
-        self.label2.move(5, 50)
+        layout.addWidget(self.label2)
         
-        self.popupItens1 = ('A1', 'B2', 'B1', 'B2', 'C', 'D', 'E', 'F', 'G')
-        self.popup1 = QtGui.QComboBox(self)
-        self.popup1.addItems(self.popupItens1)
-        self.popup1.move(200, 50)
+        popupItens1 = ('A1', 'B2', 'B1', 'B2', 'C', 'D', 'E', 'F', 'G')
+        popup1 = QtGui.QComboBox(self)
+        popup1.addItems(popupItens1)
+        layout.addWidget(popup1)
         
         self.label2 = QtGui.QLabel('Origem', self)
-        self.label2.move(5, 70)
+        layout.addWidget(self.label2)
         self.textInput = QtGui.QLineEdit(self)
-        self.textInput.move(200, 70)
+        layout.addWidget(self.textInput)
 
         self.label2 = QtGui.QLabel('Destino', self)
-        self.label2.move(5, 90)
+        layout.addWidget(self.label2)
         self.textInput = QtGui.QLineEdit(self)
-        self.textInput.move(200, 90)
-
+        layout.addWidget(self.textInput)
+        
         self.label2 = QtGui.QLabel('Potência (kW)', self)
-        self.label2.move(5, 110)
+        layout.addWidget(self.label2)
         self.textInput = QtGui.QLineEdit(self)
-        self.textInput.move(200,110)
+        layout.addWidget(self.textInput)
 
         self.label2 = QtGui.QLabel('Tensão fase-fase (V)', self)
-        self.label2.move(5, 130)
+        layout.addWidget(self.label2)
         self.textInput = QtGui.QLineEdit(self)
-        self.textInput.move(200, 130)
+        layout.addWidget(self.textInput)
 
         self.label2 = QtGui.QLabel('Fator de potência', self)
-        self.label2.move(5, 150)
+        layout.addWidget(self.label2)
         self.textInput = QtGui.QLineEdit(self)
-        self.textInput.move(200, 150)
+        layout.addWidget(self.textInput)
 
+        self.label2 = QtGui.QLabel('Potência aparênte (kVA)', self)
+        layout.addWidget(self.label2)
+        self.textInput = QtGui.QLineEdit(self)
+        layout.addWidget(self.textInput)
 
-        pushButton1 = QtGui.QPushButton('Adicionar', self)
-        pushButton1.move(200, 400)
+        self.label2 = QtGui.QLabel('Corrente (A)', self)
+        layout.addWidget(self.label2)
+        self.textInput = QtGui.QLineEdit(self)
+        layout.addWidget(self.textInput)
 
-        pushButton1 = QtGui.QPushButton('Cancelar', self)
-        pushButton1.move(300, 400)
+        self.label2 = QtGui.QLabel('Comprimento do circuito (m)', self)
+        layout.addWidget(self.label2)
+        self.textInput = QtGui.QLineEdit(self)
+        layout.addWidget(self.textInput)
 
+        self.botao = QtGui.QPushButton("Adicionar")
+        layout.addWidget(self.botao)
+        
+        self.botao = QtGui.QPushButton("Cancelar")
+        layout.addWidget(self.botao)
+        
         self.show()

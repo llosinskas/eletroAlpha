@@ -22,9 +22,8 @@ class newProjetctEletrical:
         folder = doc.addObject("App::DocumentObjectGroup", "Projeto 3D")
         folder = doc.addObject("App::DocumentObjectGroup", "Projeto 2D")
         folder = doc.addObject("App::DocumentObjectGroup", "Equipamentos")
-
+                
         doc.recompute()
-    
 
     def GetResources(self):
         return {'Pixmap': os.path.join(os.path.dirname(os.path.abspath(__file__)),"Resources/Icons", 'newProject.svg'), 'MenuText': "Novo Projeto", 'ToolTip':"Iniciar um novo projeto"}

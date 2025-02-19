@@ -1,3 +1,4 @@
+import PySide
 import os 
 import FreeCADGui as Gui
 import FreeCAD as App
@@ -9,7 +10,7 @@ import core.EletroGui as EletroGui
 
 
 class InsertComponent:   
-
+  
     def Activated(self):
         doc=App.activeDocument()
         form = EletroGui.MainDialog()
@@ -41,8 +42,6 @@ class Equipaments:
 
 
     def GetResources(self):
-        
-        
         return {'Pixmap': os.path.join(os.path.dirname(os.path.abspath(__file__)), "Resources/Icons", 'equipamentos.svg'), 'MenuText':'Inserir um equipamento elétrico', 'ToolTip':'Inserir um novo equipamento elétrico'}
 
 
@@ -62,10 +61,10 @@ class CableTray:
 
 
 
-
 Gui.addCommand("InsertComponent", InsertComponent())
 Gui.addCommand("InsertTugs", Tugs())
 Gui.addCommand("InsertEquipaments", Equipaments())
 Gui.addCommand("InsertWire", Wire())
 Gui.addCommand("InsertConduit", Conduit())
 Gui.addCommand("InsertCableTray", CableTray())
+

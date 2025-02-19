@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+    <class>Dialog</class>
+    <!-- Cria o poup -->
+    <widget class="QDialog" name="Dialog">
+        <!-- Configura tamanho do poup -->
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>900</width>
+                <height>600</height>
+            </rect>
+        </property>
+        <!-- Configura o titulo da caixa -->
+        <property name="windowTitle">
+            <string>Criar circuito</string>
+        </property>
+    <!-- Configura o tipo de layout interno do body -->
+    <layout class="QVBoxLayout" name="verticalLayout">
+        <!-- Adiciona os items de dentro do layout -->
+        <item>
+            
+        </item>
+    </layout>
+    </widget>
+</ui>
