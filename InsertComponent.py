@@ -4,17 +4,15 @@ import FreeCADGui as Gui
 import FreeCAD as App
 from PySide import QtCore, QtGui
 
-
-import Eletro_locator
-import core.EletroGui as EletroGui
+# import core.EletroGui as EletroGui
 
 
 class InsertComponent:   
   
     def Activated(self):
         doc=App.activeDocument()
-        form = EletroGui.MainDialog()
-        form.exec_()
+        # form = EletroGui.MainDialog()
+        # form.exec_()
     def IsActive(self):
         return True
     

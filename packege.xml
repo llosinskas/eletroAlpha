@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<package format="1" xmlns="https://wiki.freecad.org/Package_Metadata">
+    <name>Circuits</name>
+    <version>1.0</version>
+    <pythonmin>3.8.0</pythonmin>
+    <descriptions>Projetos Elétrico e Elétromecânicos no FreeCAD</descriptions>
+    <maintainer email="lucas@okaneenergia.com">Lucas Losinskas</maintainer>
+    <content>
+    <workbench>
+        <depend optional="False" type="python">matplotlib</depend>
+        <depend optional="False" type="python">math</depend>
+    </workbench>
+    </content>
+</package>

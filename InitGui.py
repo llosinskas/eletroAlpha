@@ -1,19 +1,25 @@
-
 # Função para iniciar a bancada 
 # Copyright Lucas Losinskas 
 # year 2023
 
 import os 
 import FreeCADGui
-import Eletro_locator
 import sys, FreeCAD
+import WorkbenchBase
 
-global logo_icon, eletro_path
-eletro_path = os.path.dirname(Eletro_locator.__file__)
-logo_icon = os.path.join(eletro_path, 'Resources/Icons/logo.svg')
+__title__ = WorkbenchBase.__title__
+__author__ = WorkbenchBase.__author__
+__url__ = WorkbenchBase.__url__
+
+# paths configs
+global logo_icon, path_base
+path_base = WorkbenchBase.__dir__
+logo_icon = os.path.join(WorkbenchBase.ICON_PATH, "logo.svg")
+
 
 class eletroAlpha(Workbench):
-    MenuText = "Eletro Alpha"
+    
+    MenuText = "Circuits"
     ToolTip = "Bancada para a criação de projetos elétricos: Residênciais, Indústriais e Comerciais"
     Icon = logo_icon
 
@@ -71,20 +77,33 @@ class eletroAlpha(Workbench):
             "Draft_PathArray", 
         ]
         self.appendToolbar("Modificador", self.modify)
-        import Arch
+        import bimcommands
+        
+        
         self.bimtools = [
-              "Arch_Space",
+            "BIM_Project",
+            "Arch_Space", 
+            "Arch_Wall", 
+            "BIM_Column", 
+            "BIM_Beam", 
+            "BIM_Slab", 
+            "BIM_Door", 
+            "BIM_Library" 
+            
         ]
         self.appendToolbar("BIM", self.bimtools)
     
+        # import EletricProject
+        # self.listProjects=["ComponentEletric", "Gerar3D"]
+        # self.appendToolbar=("Projetos BIM", self.listProjects)
 
         import NewProject
         self.projectList=['newProjetctEletrical', 'newSpreadsheet']
         self.appendToolbar("Novo Projeto", self.projectList)
 
-        import InsertComponent
-        self.componenents=['InsertComponent', 'InsertTugs', 'InsertEquipaments', 'InsertWire', 'InsertConduit', 'InsertCableTray']
-        self.appendToolbar('Inserir Componentes', self.componenents)
+        # import InsertComponent
+        # self.componenents=['InsertComponent', 'InsertTugs', 'InsertEquipaments', 'InsertWire', 'InsertConduit', 'InsertCableTray']
+        # self.appendToolbar('Inserir Componentes', self.componenents)
 
         import Reports
         self.listreports = ['GenerateReport']
