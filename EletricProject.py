@@ -7,7 +7,7 @@ import WorkbenchBase
 import Sketcher
 import Part
 import Draft
-
+from utils.create_group import create_group
 
 
 class ComponentEletric:
@@ -49,25 +49,29 @@ class ComponentEletric:
 class Gerar3D:  
     
     def makeTug(self, tugs, doc):
-        body=""
-        if doc.getObject("Equipamentos") is not None:
-            body = doc.getObject("Equipamentos")
-            body.removeObjectsFromDocument()
-            doc.removeObject("Equipamentos")
-            body = doc.addObject("App::DocumentObjectGroup", 'Equipamentos')
+        
+        group = create_group("Equipamentos", doc)
+        path_tomadas =""
+        if doc.getObject("Tomadas") is not None:
+            path_tomadas = doc.getObject("Tomadas")
         else:
-            body = doc.addObject("App::DocumentObjectGroup", 'Equipamentos')
+            path_tomadas = doc.addObject("App::DocumentObjectGroup", "Tomadas")
         for tug in tugs:
-            caixa = doc.addObject('Part::Box', 'MinhaCaixa')
+
+            caixa = doc.addObject('Part::Box', 'tomada')
             caixa.Length = 10
             caixa.Width = 20
             caixa.Height = 30
             posicao = tug.Placement.Base
             Draft.move([caixa], posicao, copy=False)
             Draft.move([caixa], App.Vector(0,0,tug.altura_piso), copy=False)
-            body.addObject(caixa)
-
-
+            group.addObject(caixa)
+            path_tomadas.addObject(tug)
+        
+        Gui.Selection.clearSelection()
+        Gui.Selection.addSelection(doc.Name,"Tomadas")
+        Gui.runCommand('Std_ToggleVisibility', 0)
+                           
 
     def Activated(self):
         doc=App.activeDocument()
@@ -76,7 +80,6 @@ class Gerar3D:
         heights = []
         print(list_obj)
         for obj in list_obj:
-            print(obj.Label)
             if hasattr(obj, 'tipo'):
                 if obj.tipo == "tomada":
                     tug.append(obj)
