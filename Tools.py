@@ -24,9 +24,8 @@ class ReiniciarBancada():
     
 
     def Activated(self):
-        import importlib
         
-        
+        print(WorkbenchBase.__title__)
         # InitGui.eletroAlpha(self).Initialize(self)
         Gui.activateWorkbench(WorkbenchBase.__title__)
 

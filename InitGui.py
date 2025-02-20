@@ -49,6 +49,7 @@ class eletroAlpha(Workbench):
         self.appendToolbar("Snap", self.snap)
         
         self.draftingtools = [
+                "BIM_Sketch", 
                 "Draft_Line",
                 "Draft_Circle", 
                 "Draft_Wire", 
@@ -93,17 +94,21 @@ class eletroAlpha(Workbench):
         ]
         self.appendToolbar("BIM", self.bimtools)
     
-        # import EletricProject
-        # self.listProjects=["ComponentEletric", "Gerar3D"]
-        # self.appendToolbar=("Projetos BIM", self.listProjects)
+        import EletricProject
+        self.listProjects=[
+            "ComponentEletric", 
+            "Gerar3D", 
+            "Cabo"
+            ]
+        self.appendToolbar("Alfa", self.listProjects)
 
         import NewProject
         self.projectList=['newProjetctEletrical', 'newSpreadsheet']
         self.appendToolbar("Novo Projeto", self.projectList)
 
-        # import InsertComponent
-        # self.componenents=['InsertComponent', 'InsertTugs', 'InsertEquipaments', 'InsertWire', 'InsertConduit', 'InsertCableTray']
-        # self.appendToolbar('Inserir Componentes', self.componenents)
+        import InsertComponent
+        self.componenents=['InsertComponent', 'InsertTugs', 'InsertEquipaments', 'InsertWire', 'InsertConduit', 'InsertCableTray']
+        self.appendToolbar('Inserir Componentes', self.componenents)
 
         import Reports
         self.listreports = ['GenerateReport']
