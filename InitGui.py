@@ -3,9 +3,11 @@
 # year 2023
 
 import os 
-import FreeCADGui
+import FreeCADGui as Gui
 import sys, FreeCAD
 import WorkbenchBase
+
+
 
 __title__ = WorkbenchBase.__title__
 __author__ = WorkbenchBase.__author__
@@ -17,7 +19,7 @@ path_base = WorkbenchBase.__dir__
 logo_icon = os.path.join(WorkbenchBase.ICON_PATH, "logo.svg")
 
 
-class eletroAlpha(Workbench):
+class Circuits(Workbench):
     
     MenuText = "Circuits"
     ToolTip = "Bancada para a criação de projetos elétricos: Residênciais, Indústriais e Comerciais"
@@ -26,8 +28,18 @@ class eletroAlpha(Workbench):
     def Initialize(self):
         """Essa função é executada quando a bancada é ativada pela primeira vez
         """
-        
+
+        import bimcommands
+        import BimWorkingPlaneTools
         import DraftTools
+        import NewProject
+        import EletricProject
+        import InsertComponent
+        import Arch
+        import Draft
+        import BimWrappedTools
+     
+        
         self.snap = [
             "Draft_ToggleGrid", 
             "Draft_Snap_Lock", 
@@ -78,8 +90,7 @@ class eletroAlpha(Workbench):
             "Draft_PathArray", 
         ]
         self.appendToolbar("Modificador", self.modify)
-        import bimcommands
-        
+       
         
         self.bimtools = [
             "BIM_Project",
@@ -93,8 +104,15 @@ class eletroAlpha(Workbench):
             
         ]
         self.appendToolbar("BIM", self.bimtools)
-    
-        import EletricProject
+        self.annotationtools = [
+            "BIM_Text",
+            "Arch_SectionPlane",
+            "BIM_TDArchView",
+            "BIM_Shape2DView",
+        ]
+        self.appendToolbar("Anotações", self.annotationtools)
+
+        
         self.listProjects=[
             "ComponentEletric", 
             "Gerar3D", 
@@ -102,11 +120,11 @@ class eletroAlpha(Workbench):
             ]
         self.appendToolbar("Alfa", self.listProjects)
 
-        import NewProject
+        
         self.projectList=['newProjetctEletrical', 'newSpreadsheet']
         self.appendToolbar("Novo Projeto", self.projectList)
 
-        import InsertComponent
+       
         self.componenents=['InsertComponent', 'InsertTugs', 'InsertEquipaments', 'InsertWire', 'InsertConduit', 'InsertCableTray']
         self.appendToolbar('Inserir Componentes', self.componenents)
 
@@ -132,4 +150,4 @@ class eletroAlpha(Workbench):
         return "Gui::PythonWorkbench"
 
 
-Gui.addWorkbench(eletroAlpha())
+Gui.addWorkbench(Circuits())

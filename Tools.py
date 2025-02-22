@@ -28,6 +28,7 @@ class ReiniciarBancada():
         print(WorkbenchBase.__title__)
         # InitGui.eletroAlpha(self).Initialize(self)
         Gui.activateWorkbench(WorkbenchBase.__title__)
+        Gui.updateGui()
 
         
     def GetResources(self):
