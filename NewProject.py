@@ -4,11 +4,26 @@
 
 
 import os 
-from PySide import QtGui, QtCore
+from PySide import QtGui, QtCore, QtWidgets
 import FreeCADGui as Gui
 import FreeCAD as App
 import Spreadsheet
+from UI.insert_circuit import InsertCircuit
 
+try:
+    _fromUtf8 = QtCore.QString.fromUtf8
+except AttributeError:
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
+    
 
 class newProjetctEletrical:
    
@@ -27,6 +42,32 @@ class newProjetctEletrical:
 
     def GetResources(self):
         return {'Pixmap': os.path.join(os.path.dirname(os.path.abspath(__file__)),"Resources/Icons", 'newProject.svg'), 'MenuText': "Novo Projeto", 'ToolTip':"Iniciar um novo projeto"}
+
+
+class CreateModel:
+
+    def Activated(self):
+        doc = App.newDocument("Model")
+        if doc is None:
+            App.Console.PrintError('No active document found.\n')
+            return 
+
+        folder = doc.addObject("App::DocumentObjectGroup", "Simbolo 2D")
+        folder = doc.addObject("App::DocumentObjectGroup", "Foto")
+        folder = doc.addObject("App::DocumentObjectGroup", "Modelo 3D")
+        folder = doc.addObject("App::DocumentObjectGroup", "Descricao")
+        folder = doc.addObject("App::DocumentObjectGroup", "Detalhes 2D")
+        
+        
+        
+                
+        doc.recompute()
+
+    def GetResources(self):
+        return {
+            'Pixmap': os.path.join(os.path.dirname(os.path.abspath(__file__)),"Resources/Icons", 'add_model.svg'), 
+            'MenuText': "Criar Model", 'ToolTip':"Botão para criar Models"}
+
 
 
 class newSpreadsheet:
@@ -56,6 +97,46 @@ class newSpreadsheet:
     def GetResources(self):
         return {'Pixmap': os.path.join(os.path.dirname(os.path.abspath(__file__)),"Resources/Icons", 'planilha.svg'), 'MenuText': "Nova Planilha", 'ToolTip':"Criar uma nova planilha de circuitos"}
 
+class addCircuit(object):
+    
+    
+    def Activated(self):
+        form = InsertCircuit()
+   
+        form.exec_()
+        # doc = App.ActiveDocument
+        
+        # planilha =""
+        # if doc.getObject("Circuitos"):
+        #     planilha = doc.getObject("Circuitos")
+        # else:
+        #     newSpreadsheet.Activated(self)
+        #     planilha = doc.getObject("Circuitos")
+
+        
+    def IsActive(self):
+       
+        return True
+    def GetResources(self):
+        return {
+            'Pixmap': os.path.join(os.path.dirname(os.path.abspath(__file__)),"Resources/Icons", 'record-svgrepo-com.svg'), 
+            'MenuText': "Add Planilha", 
+            'ToolTip':"Adicionar os circuitos na planilha"}
+
+class listElements:
+    def Activated(self):
+        pass
+    def GetResources(self):
+        return {
+            'Pixmap': os.path.join(os.path.dirname(os.path.abspath(__file__)),"Resources/Icons", 'listElements.svg'), 
+            'MenuText': "Listar Elementos", 
+            'ToolTip':"Listar elementos elétricos"}
+
+
+
 # Adiciona os camandos para o gerenciamento de comando do FreeCAD 
 Gui.addCommand("newProjetctEletrical", newProjetctEletrical())
 Gui.addCommand("newSpreadsheet", newSpreadsheet())
+Gui.addCommand("AddSpreadsheet", addCircuit())
+Gui.addCommand("ListElements", listElements())
+Gui.addCommand("CreateModel", CreateModel())

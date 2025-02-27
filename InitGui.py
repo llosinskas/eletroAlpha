@@ -30,14 +30,14 @@ class Circuits(Workbench):
         """
 
         import bimcommands
-        import BimWorkingPlaneTools
+        # import BimWorkingPlaneTools
         import DraftTools
         import NewProject
         import EletricProject
         import InsertComponent
         import Arch
         import Draft
-        import BimWrappedTools
+        # import BimWrappedTools
      
         
         self.snap = [
@@ -121,7 +121,14 @@ class Circuits(Workbench):
         self.appendToolbar("Alfa", self.listProjects)
 
         
-        self.projectList=['newProjetctEletrical', 'newSpreadsheet']
+        self.projectList=[
+            'newProjetctEletrical',
+            'newSpreadsheet', 
+            'AddSpreadsheet', 
+            'ListElements',
+            'CreateModel'
+            
+            ]
         self.appendToolbar("Novo Projeto", self.projectList)
 
        
