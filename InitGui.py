@@ -37,6 +37,8 @@ class Circuits(Workbench):
         import InsertComponent
         import Arch
         import Draft
+
+        import GerarUnifilar
         # import BimWrappedTools
      
         
@@ -118,7 +120,7 @@ class Circuits(Workbench):
             "Gerar3D", 
             "Cabo"
             ]
-        self.appendToolbar("Alfa", self.listProjects)
+        self.appendToolbar("Inseirir componentes", self.listProjects)
 
         
         self.projectList=[
@@ -143,7 +145,10 @@ class Circuits(Workbench):
         self.listTools = ["GetSpaces", "ReiniciarBancada"]
         self.appendToolbar("Ferramentas", self.listTools)
 
-        FreeCADGui.updateGui()
+        self.listGerar = ["GerarUnifilar"]
+        self.appendToolbar("Gerar diagrama unifilar", self.listGerar)
+        
+        Gui.updateGui()
     def Activated(self):
         return 
     

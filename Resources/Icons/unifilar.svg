@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="163.2mm" height="85.50216885232662mm" viewBox="0 0 163.2 85.50216885232662" xmlns="http://www.w3.org/2000/svg" version="1.1">
+<g id="Block" transform="translate(1.600000,43.902169) scale(1,-1)">
+<circle cx="20.0" cy="0.0" r="2.00148680020712" stroke="#191919" stroke-width="2.8 px" style="stroke-width:2.8;stroke-miterlimit:4;stroke-dasharray:none;stroke-linecap:square;fill:#727980"/>
+<circle cx="60.0" cy="8.76035355368288e-17" r="2.0" stroke="#191919" stroke-width="2.8 px" style="stroke-width:2.8;stroke-miterlimit:4;stroke-dasharray:none;stroke-linecap:square;fill:#727980"/>
+<path id="Block_nwe0000"  d="M 0.0 0.0 L 20.0 0.0 " stroke="#191919" stroke-width="2.8 px" style="stroke-width:2.8;stroke-miterlimit:4;stroke-dasharray:none;stroke-linecap:square;fill:none;fill-opacity:1.0;fill-rule: evenodd"/>
+<path id="Block_nwe0003"  d="M 59.174124721184256 1.5044748327105637 A 22.3607 22.3607 0 0 1 20.9749 1.74929" stroke="#191919" stroke-width="2.8 px" style="stroke-width:2.8;stroke-miterlimit:4;stroke-dasharray:none;stroke-linecap:square;fill:none;fill-opacity:1.0;fill-rule: evenodd"/>
+<path id="Block_nwe0004"  d="M 62.0 8.76035355368288e-17 L 80.0 0.0 " stroke="#191919" stroke-width="2.8 px" style="stroke-width:2.8;stroke-miterlimit:4;stroke-dasharray:none;stroke-linecap:square;fill:none;fill-opacity:1.0;fill-rule: evenodd"/>
+<title>b'Block'</title>
+</g>
+<g id="Block001" transform="translate(1.600000,43.902169) scale(1,-1)">
+<circle cx="140.0" cy="30.0" r="2.0" stroke="#191919" stroke-width="2.8 px" style="stroke-width:2.8;stroke-miterlimit:4;stroke-dasharray:none;stroke-linecap:square;fill:#727980"/>
+<circle cx="100.0" cy="30.0" r="2.00148680020712" stroke="#191919" stroke-width="2.8 px" style="stroke-width:2.8;stroke-miterlimit:4;stroke-dasharray:none;stroke-linecap:square;fill:#727980"/>
+<path id="Block001_nwe0000"  d="M 142.0 30.0 L 160.0 30.0 " stroke="#191919" stroke-width="2.8 px" style="stroke-width:2.8;stroke-miterlimit:4;stroke-dasharray:none;stroke-linecap:square;fill:none;fill-opacity:1.0;fill-rule: evenodd"/>
+<path id="Block001_nwe0001"  d="M 139.17412472118426 31.504474832710564 A 22.3607 22.3607 0 0 1 100.975 31.7493" stroke="#191919" stroke-width="2.8 px" style="stroke-width:2.8;stroke-miterlimit:4;stroke-dasharray:none;stroke-linecap:square;fill:none;fill-opacity:1.0;fill-rule: evenodd"/>
+<path id="Block001_nwe0003"  d="M 80.0 30.0 L 100.0 30.0 " stroke="#191919" stroke-width="2.8 px" style="stroke-width:2.8;stroke-miterlimit:4;stroke-dasharray:none;stroke-linecap:square;fill:none;fill-opacity:1.0;fill-rule: evenodd"/>
+<title>b'Block001'</title>
+</g>
+<g id="Line002" transform="translate(1.600000,43.902169) scale(1,-1)">
+<path id="Line002_w0000"  d="M 80.0 40.0 L 80.0 -40.0 " stroke="#191919" stroke-width="2.8 px" style="stroke-width:2.8;stroke-miterlimit:4;stroke-dasharray:none;stroke-linecap:square;fill:none;fill-opacity:1;fill-rule: evenodd"/>
+<title>b'Line002'</title>
+</g>
+<g id="Block002" transform="translate(1.600000,43.902169) scale(1,-1)">
+<circle cx="140.0" cy="-20.0" r="2.0" stroke="#191919" stroke-width="2.8 px" style="stroke-width:2.8;stroke-miterlimit:4;stroke-dasharray:none;stroke-linecap:square;fill:#727980"/>
+<circle cx="100.0" cy="-20.0" r="2.00148680020712" stroke="#191919" stroke-width="2.8 px" style="stroke-width:2.8;stroke-miterlimit:4;stroke-dasharray:none;stroke-linecap:square;fill:#727980"/>
+<path id="Block002_nwe0000"  d="M 142.0 -20.0 L 160.0 -20.0 " stroke="#191919" stroke-width="2.8 px" style="stroke-width:2.8;stroke-miterlimit:4;stroke-dasharray:none;stroke-linecap:square;fill:none;fill-opacity:1.0;fill-rule: evenodd"/>
+<path id="Block002_nwe0001"  d="M 139.17412472118426 -18.495525167289436 A 22.3607 22.3607 0 0 1 100.975 -18.2507" stroke="#191919" stroke-width="2.8 px" style="stroke-width:2.8;stroke-miterlimit:4;stroke-dasharray:none;stroke-linecap:square;fill:none;fill-opacity:1.0;fill-rule: evenodd"/>
+<path id="Block002_nwe0003"  d="M 80.0 -20.0 L 100.0 -20.0 " stroke="#191919" stroke-width="2.8 px" style="stroke-width:2.8;stroke-miterlimit:4;stroke-dasharray:none;stroke-linecap:square;fill:none;fill-opacity:1.0;fill-rule: evenodd"/>
+<title>b'Block002'</title>
+</g>
+</svg>
