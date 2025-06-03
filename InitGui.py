@@ -90,6 +90,8 @@ class Circuits(Workbench):
             "Draft_Mirror", 
             "Draft_OrthoArray", 
             "Draft_PathArray", 
+            "Draft_Edit", 
+            "Draft_Draft2Sketch",
         ]
         self.appendToolbar("Modificador", self.modify)
        
@@ -145,9 +147,17 @@ class Circuits(Workbench):
         self.listTools = ["GetSpaces", "ReiniciarBancada"]
         self.appendToolbar("Ferramentas", self.listTools)
 
-        self.listGerar = ["GerarUnifilar"]
+        self.listGerar = ["GerarUnifilar", "GerarPlanilha"]
         self.appendToolbar("Gerar diagrama unifilar", self.listGerar)
+
+        import importQEletrotech
+        self.listQEletrotech = ["ImportQET","Add_Node"]
+        self.appendToolbar("Importar arquivo do QEletrotech", self.listQEletrotech)
         
+        # import ManagerWorkbench
+        # self.listManagerWorkbench = ["AtualizarBancada"]
+        # self.appendToolbar("Gerenciar a bancada", self.listManagerWorkbench)
+
         Gui.updateGui()
     def Activated(self):
         return 
