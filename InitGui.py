@@ -111,7 +111,7 @@ class Circuits(Workbench):
         self.annotationtools = [
             "BIM_Text",
             "Arch_SectionPlane",
-            "BIM_TDArchView",
+            "BIM_TDView",
             "BIM_Shape2DView",
         ]
         self.appendToolbar("Anotações", self.annotationtools)

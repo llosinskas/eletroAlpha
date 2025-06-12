@@ -11,11 +11,26 @@ from utils.create_group import create_group
 
 
 class ComponentEletric:
+    
+    def get_point(self):
+        point = App.Vector(0,0,0)
+        if self.sel and self.sel[0].HasSubObjects:
+            point = self.sel[0].PickedPoints[0]
+        return point 
+
+
+
     def Activated(self):
         doc=App.activeDocument()
+        
+        self.sel = Gui.Selection.getSelectionEx()
+        point = ComponentEletric.get_point(self)
+
         # Cria Schetch da simbologia
         sketch_body = doc.addObject('Sketcher::SketchObject', 'Tomada')
-        sketch_body.Placement = App.Placement(App.Vector(0,0,0), App.Rotation(0,0,0))
+        # sketch_body.Placement = App.Placement(App.Vector(0,0,0), App.Rotation(0,0,0))
+        sketch_body.Placement.Base = point 
+        
         # Desenha a simbologia
         heigth = 100
         sketch_body.addGeometry(Part.LineSegment(App.Vector(0, 0), App.Vector(heigth/3, 0)), False)
