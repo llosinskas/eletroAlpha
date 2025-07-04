@@ -147,7 +147,7 @@ class Circuits(Workbench):
         self.listTools = ["GetSpaces", "ReiniciarBancada"]
         self.appendToolbar("Ferramentas", self.listTools)
 
-        self.listGerar = ["GerarUnifilar", "GerarPlanilha"]
+        self.listGerar = ["GerarUnifilar", "GerarPlanilha", "AddCircuito"]
         self.appendToolbar("Gerar diagrama unifilar", self.listGerar)
 
         import importQEletrotech

@@ -28,19 +28,19 @@ class GerarPlanilha:
             planilha = doc.Spreadsheet(nome_quadro)
         planilha.addProperty("App::PropertyString", "quadro")
         planilha.quadro = "Quadro"
-        header_sheet = ["indentificacao_painel", "bitola", "origem", "descricao","tensao", "numero_fases", "terra",
+        header_sheet = ["indentificacao_painel", "bitola", "origem","curto_circuito", "descricao","tensao", "numero_fases", "terra",
                     "neutro","curva_disjuntor",  "corrente_nominal_disjuntor", "corrente_curto_circuito", 
                     "potencia_instalada", "potencia_demanda", "material_quadro", 
                     "DPS", "classe_DPS", "tensao_DPS", "corrente_DPS"] 
         planilha.set("A1", nome_quadro)
-        planilha.mergeCells('A1:R1')
+        planilha.mergeCells('A1:S1')
         for index, header in enumerate(header_sheet):
             coluna = chr(ord('A')+index) 
             
             planilha.set(f"{coluna}2", header)
             planilha.setAlias(f"{coluna}3", header)
         planilha.set("A4","Circuitos")
-        planilha.mergeCells('A4:R4')
+        planilha.mergeCells('A4:S4')
         count = 0
         for index, value in dados.items():
             coluna = chr(ord('A')+count)
@@ -49,11 +49,7 @@ class GerarPlanilha:
 
 
         num_linhas = GerarPlanilha.count_rows(planilha)
-        # print(num_linhas)
         
-
-
-
     def count_rows(planilha):
         used = planilha.getUsedCells()
         linhas = [int(re.search(r'\d', cell).group()) for cell in used]
@@ -68,6 +64,7 @@ class GerarPlanilha:
         doc = App.activeDocument()
         GerarPlanilha.gerar_tabela(self, doc)
         doc.recompute()
+    
     def GetResources(self):
         
         return {
@@ -97,6 +94,10 @@ class CriarQuadro(QtWidgets.QDialog):
         self.origem = QtWidgets.QLineEdit()
         self.origem.setPlaceholderText("Ex. Padrão, QD1, QGBT, ...")
         layout.addRow("Origem", self.origem)
+
+        self.curto = QtWidgets.QLineEdit()
+        self.curto.setPlaceholderText("Ex. 3, 5, 6, ...")
+        layout.addRow("Nível de curto circuito [kA]", self.curto)
         
         self.descricao = QtWidgets.QLineEdit()
         self.descricao.setPlaceholderText("Ex. Quadro de iluminação + tomadas, quadro de automação da iluminação")
@@ -173,6 +174,7 @@ class CriarQuadro(QtWidgets.QDialog):
             "indentificacao": self.identificacao.text(), 
             "bitola_entrada": self.bitola.text(), 
             "origem": self.origem.text(), 
+            "curto_circuito": self.curto.text(),
             "descricao":self.descricao.text(), 
             "tensao": self.tensao.text(), 
             "n_fases":self.n_fases.currentText(), 
@@ -203,23 +205,34 @@ class Add_circuito(QtWidgets.QDialog):
 
         self.setLayout(layout)
 
+
+    def get_dados(self):
+        dados = {}
+        return dados
+
 class GerarUnifilar:
-    
-    def cabo(doc, fase, terra, neutro, heigth, position, group):
+         
+    def cabo(doc, fase, terra, neutro, heigth, position, group):  
+        
         # position = equipamento.Placement.Base
         sketch_body = doc.addObject('Sketcher::SketchObject', 'Cabo')
         sketch_body.Placement = App.Placement(position+App.Vector(50,50,0), App.Rotation(0,0,0)) 
+        
         # Terra 
         if terra:
             sketch_body.addGeometry(Part.LineSegment(App.Vector(0, 0), App.Vector(0, heigth/2)), False)
-            sketch_body.addGeometry(Part.LineSegment(App.Vector(-heigth/5, heigth/2), App.Vector(0, heigth/2)), False)
+            sketch_body.addGeometry(Part.LineSegment(App.Vector(-heigth/5, heigth/2), App.Vector(heigth/5, heigth/2)), False)
+        
         if neutro:
             if terra:
-                sketch_body.addGeometry(Part.LineSegment(App.Vector(heigth/2, 0), App.Vector(heigth/2, heigth/2)), False)
-                sketch_body.addGeometry(Part.LineSegment(App.Vector(heigth/2-heigth/5, heigth/2), App.Vector(heigth/2+heigth/5, heigth/2)), False)
+                sketch_body.addGeometry(Part.LineSegment(App.Vector(heigth/2, -heigth/2), App.Vector(heigth/2, heigth/2)), False)
+                sketch_body.addGeometry(Part.LineSegment(App.Vector(-heigth/5+heigth/2, heigth/2), App.Vector(heigth/2, heigth/2)), False)
+                print("neutro com terra")
             else:
-                sketch_body.addGeometry(Part.LineSegment(App.Vector(0, 0), App.Vector(0, heigth/2)), False)
-                sketch_body.addGeometry(Part.LineSegment(App.Vector(-heigth/5, heigth/2), App.Vector(heigth/5, heigth/2)), False)
+                sketch_body.addGeometry(Part.LineSegment(App.Vector(0, -heigth/2), App.Vector(0, heigth/2)), False)
+                sketch_body.addGeometry(Part.LineSegment(App.Vector(-heigth/5, heigth/2), App.Vector(0, heigth/2)), False)
+                print("neutro sem terra ")
+        
         match fase:
             case 1:
                 if neutro and terra:
@@ -294,15 +307,87 @@ class GerarUnifilar:
 
         group.addObject(skecth)
 
-
-
-    def seta(self, doc, h, group):
-        p1 = App.Vector(0,h/2,0)
-        p2 = App.Vector(0,-h/2,0)
-        p3 = App.Vector(2*h,0,0)
-        line1 = Draft.make_wire([p1, p3, p2, p1], closed=True)
-
     def diagrama(self, doc,h, group, planilha):
+        # Pegar valores da planilha 
+        try:
+
+            indentificacao_painel = planilha.get("indentificacao_painel")
+            bitola = planilha.get("bitola")
+            origem = planilha.get("origem")
+            descricao = planilha.get("descricao")
+            tensao = planilha.get("tensao")
+            numero_fases=planilha.get("numero_fases")
+            
+            curva_disjuntor = planilha.get("curva_disjuntor")
+            corrente_nominal_disjuntor = planilha.get("corrente_nominal_disjuntor")
+            corrente_curto_circuito= planilha.get("corrente_curto_circuito")
+            potencia_instalada = planilha.get("potencia_instalada")
+            potencia_demanda= planilha.get("potencia_demanda")
+            material_quadro = planilha.get("material_quadro")
+            DPS = planilha.get("DPS")
+
+            pos_texto = App.Vector(-h*0.5,0.5*h,0)
+            GerarUnifilar.add_texto(origem, pos_texto, 90,h,  group)
+
+            bitola = f"#{bitola}"
+            pos_texto = App.Vector(5*h,h,0)
+            GerarUnifilar.add_texto(bitola, pos_texto, 0,h,  group)
+
+            disj = f"{curva_disjuntor} {corrente_nominal_disjuntor}A"
+            pos_texto = App.Vector(10*h, 5*h, 0)
+            GerarUnifilar.add_texto(disj,pos_texto, 0, h, group)
+
+            disj_cc = f"{corrente_curto_circuito}kA"
+            pos_texto = App.Vector(13*h, 3*h, 0)
+            GerarUnifilar.add_texto(disj_cc,pos_texto, 0, h, group)
+
+            descricao_label= f"Material: {material_quadro}"
+            pos_texto = App.Vector(0, -2*h, 0)
+            GerarUnifilar.add_texto(descricao_label,pos_texto, 0, h, group)
+            
+            pos_texto  = App.Vector(0, -3*h, 0)
+            GerarUnifilar.add_texto(f"Potência Instalada:{potencia_instalada} kW",pos_texto, 0, h, group)
+
+            pos_texto  = App.Vector(0, -4*h, 0)
+            GerarUnifilar.add_texto(f"Demanda:{potencia_demanda} kW",pos_texto, 0, h, group)
+
+            curto = planilha.get("curto_circuito")
+            pos_texto = App.Vector(0, -5*h, 0)
+            GerarUnifilar.add_texto(f"Nível de curto circuito no ponto {curto} kA", pos_texto, 0, h, group)
+            
+            descricao_label = f"{descricao}"
+            pos_texto = App.Vector(0, -6*h, 0)
+            GerarUnifilar.add_texto(descricao_label,pos_texto, 0, h, group)
+
+            pos_texto = App.Vector(0, 5*h, 0)
+            GerarUnifilar.add_texto(indentificacao_painel,pos_texto, 0, h, group)
+
+            tensao_label = f"{tensao}V"
+            pos_texto = App.Vector(5*h, 5*h, 0)
+            GerarUnifilar.add_texto(tensao_label,pos_texto, 0, h, group)
+
+           
+            classe_DPS = ""
+            tensao_DPS = ""
+            corrente_DPS = ""
+            if DPS == "True":
+                classe_DPS = planilha.get("classe_DPS")
+                tensao_DPS = planilha.get("tensao_DPS")
+                corrente_DPS = planilha.get("corrente_DPS")
+                
+                pl = App.Vector(15*h, 5/2*h, 0)
+                GerarUnifilar.dps(doc, pl, h, group)
+                
+                pl = App.Vector(h*17, 0,0)
+                GerarUnifilar.add_texto(f"Classe: {classe_DPS}",pl, 0, h, group)
+                pl = App.Vector(h*17, -h,0)
+                GerarUnifilar.add_texto(f"{tensao_DPS}V",pl, 0, h, group)
+                pl = App.Vector(h*17, -2*h,0)
+                GerarUnifilar.add_texto(f"{corrente_DPS}kA",pl, 0, h, group)
+
+        except Exception as e:
+            print(f"Erro ao acessar o valor da planilha do quadro: {e}")
+        
         # Linha 
         p1 = App.Vector(0,0,0)
         p2 = App.Vector(0, 5*h, 0)
@@ -330,13 +415,20 @@ class GerarUnifilar:
         circle = Draft.make_circle(radius=1.5*h, placement=pl, startangle=0, endangle=180)
         group.addObject(circle)
         
-        n_fases = 3
-        pl.Base = App.Vector(5*h, 2*h, 0)
-        GerarUnifilar.cabo(doc, n_fases, True, False, h, pl.Base, group)
+        neutro = planilha.get("neutro")
+        terra = planilha.get("terra")
+        neutro_bool = False
+        terra_bool = False
+        if neutro == "True":
+            neutro_bool=True
+        if terra == "True":
+            terra_bool=True
 
+        pl.Base = App.Vector(5*h, 2*h, 0)
+        GerarUnifilar.cabo(doc, numero_fases, terra_bool, neutro_bool, h, pl.Base, group)
         
         fator = 1
-        match n_fases:
+        match numero_fases:
             case 1:
                 fator = 0
             case 2:
@@ -344,10 +436,13 @@ class GerarUnifilar:
             case 3:
                 fator = -0.5
         pl.Base = App.Vector(11*h+fator*h, 3.5*h, 0)
-        GerarUnifilar.cabo(doc,n_fases, False, False, h, pl.Base, group)
-        pl = App.Vector(15*h, 5/2*h, 0)
-        GerarUnifilar.dps(doc, pl, h, group)
-
+        GerarUnifilar.cabo(doc,numero_fases, False, False, h, pl.Base, group)
+    
+    def add_texto(text, position, angle, h, group):
+        texto = Draft.make_text(str(text), placement = position, screen=None, height=h, line_spacing=None)
+        texto.Placement.Rotation = App.Rotation(App.Vector(0,0,1), angle)
+        # Draft.rotate([texto],angle, position, App.Vector(0,0,1),copy=False)
+        group.addObject(texto)
 
     def gerar_tabela(self, doc):
         planilha = doc.addObject('Spreadsheet::Sheet', 'QD')
@@ -405,24 +500,15 @@ class GerarUnifilar:
         text = Draft.make_text([f"{potencia}"], placement = position, screen =None, height=None, line_spacing=None)
         Draft.autogroup(text)
 
-
     def Activated(self):
         doc = App.activeDocument()
-        position = App.Placement(App.Vector(0,0,0), App.Rotation(0,0,0))
-        heigth =100
-        # GerarUnifilar.gerar_linha(self, doc, 100,True, 2.5,position, 30, heigth)
+        heigth =100     
         quadros = []
-        for obj in doc.Objects:
-            if hasattr(obj, "quadro"):
-                quadros.append(obj)
-        if len(quadros)==0:
-            GerarPlanilha.Activated(self)
-        
+        quadros = get_quadros(self, doc)
+
         for index, quadro in enumerate(quadros):
             diagrama_label = f"diagrama_{quadro.Label}"
-            print(diagrama_label)
             diagrama = doc.getObject(diagrama_label)
-            print(diagrama)
             if diagrama:
                 diagrama.removeObjectsFromDocument()
                 doc.removeObject(diagrama_label)
@@ -431,14 +517,53 @@ class GerarUnifilar:
             GerarUnifilar.diagrama(self, doc, heigth, group, quadro)
         doc.recompute()
 
-         
     def IsActive(self):
         return True
     
     def GetResources(self):
-        # return {'Pixmap' : WB.IMAGE_PATH/"tomadas.svg", 'MenuText': "Gerar diagrama unifilar", "Tooltip":"Gerar um diagrama unifilar a partir dos dados inseridos no projeto"}
+        
         return {'Pixmap': os.path.join(os.path.dirname(os.path.abspath(__file__)), "Resources/Icons", 'unifilar.svg'), 'MenuText':'Gerar unifilar', 'ToolTip':'Gerar diagrama unifilar dos quadros do projeto'}
 
+def get_quadros(self, doc):
+    quadros = []
+    for obj in doc.Objects:
+        if hasattr(obj, "quadro"):
+            quadros.append(obj)
+    if len(quadros) == 0:
+        GerarPlanilha.Activated(self)
+            
+    return quadros
 
+class AddCircuito:
+    def Activated(self):
+        doc = App.activeDocument()
+        height = 100
+        quadros = get_quadros(self, doc)
+        for quadro in quadros:
+            dialog = Add_circuito()
+            if dialog.exec_():
+                doc=App.activeDocument()
+            planilha = quadro
+            header_sheet = [
+                "N_circuito", "Destino", "Potência [kW]", "Tensão [V]"
+                "Fator de potência","Comprimento", "Potência Aparente [kVA]", "Corrente [A]", 
+                "Queda de tensão [%]", "Cabo [mm²]", "Médo de instalação", "fator de agrupamento", "Fator de temperatura", 
+                "Disjuntor", "Curva disjuntor", 
+                "Fase R", "Fase S", "Fase T", "Neutro", "Terra"
+                "DR", "Corrente DR", "Descrição do Circuito"]
+            for index, header in enumerate(header_sheet):
+                coluna = chr(ord("A")+index)
+                planilha.set(f"{coluna}5", header)
+
+
+        doc.recompute()
+
+    def GetResources(self):
+        return {
+            'Pixmap': os.path.join(os.path.dirname(os.path.abspath(__file__)), "Resources/Icons", 'adicionar.svg'), 
+            'MenuText':'Adicionar um circuito no diagrama', 
+            'ToolTip':'Adicionar um circuito no quadro'}
+
+Gui.addCommand("AddCircuito", AddCircuito())
 Gui.addCommand("GerarUnifilar", GerarUnifilar()) 
 Gui.addCommand("GerarPlanilha", GerarPlanilha())
