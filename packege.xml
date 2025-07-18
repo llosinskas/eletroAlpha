@@ -13,7 +13,8 @@
         <depend optional="False" type="python">math</depend>
         <depend optional="False" type="python">reportlab</depend>
         <depend optional="False" type="python">csv</depend>
-        
+        <depend optional="False" type="python">numpy</depend>
+        <depend optional="False" type="python">pandas</depend>
         <subdirectory>./</subdirectory>
     </workbench>
     </content>
