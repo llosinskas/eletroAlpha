@@ -135,9 +135,14 @@ class listElements:
                 if listElements.is_descendant(obj, parent):
                     return True
         return False
-    
-
+    def is_name_equals(doc, objeto):
+        for obj in doc.Objects:
+            if obj.Label==objeto.Label:
+                obj.Label = f"_{objeto.Label}"
+                return True
+        return False
     def Activated(self):
+        
         pasta_destino = f"{WB.__dir__}/Componentes/Eletrica"    
         if not os.path.exists(pasta_destino):
             os.makedirs(pasta_destino)
@@ -161,12 +166,15 @@ class listElements:
                     doc2 = App.open(caminho)
                     
                     for obj in doc2.Objects:
-                        copy = doc.copyObject(obj)
                         
-                        for 
-                        if not listElements.is_descendant(obj, folder):    
-                            parent = copy.getParentGroup()
-                            folder.addObject(copy)
+                        
+                        
+                        if not listElements.is_name_equals(doc, obj):
+                            if not folder.isChildOf(copy):    
+                                copy = doc.copyObject(obj)
+                                folder.addObject(copy)
+                        
+                        
                         # if hasattr(copy, 'getParentGroup'):
                             
                         #     if not listElements.is_descendant(obj, folder):
@@ -177,6 +185,8 @@ class listElements:
                         
                     App.closeDocument(item_sem)
                     doc.recompute()
+    
+                    
 
                     # doc.mergeProject(caminho)
                     
