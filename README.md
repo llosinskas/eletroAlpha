@@ -1,2 +1,2 @@
 # Circuits
-Bancada elétrica do FreeCAD
+Circuits: Uma bancada do FreeCAD para projetos elétricos opensource
