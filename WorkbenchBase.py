@@ -1,17 +1,21 @@
 # Iniatilize some paths
 import os 
-
+import sys
 
 # Path 
-__dir__= os.path.dirname(__file__)
-ICON_PATH = os.path.join(__dir__, "Resources/Icons")
-IMAGE_PATH = os.path.join(__dir__, "Resource/Images")
+try: 
+    __dir__ = os.path.dirname(sys.modules[__name__].__file__)
+except(AttributeError, KeyError):
+    __dir__ = os.path.dirname(os.path.abspath(sys.arg[0]))
+ICON_PATH = os.path.join(__dir__, "Resources","Icons")
+IMAGE_PATH = os.path.join(__dir__, "Resource","Images")
 TABLE_PATH = os.path.join(__dir__, "Tables")
 UI_PATH = os.path.join(__dir__, "UI")
-PROJECT_BIM = os.path.join(__dir__, "core/projectsbim")
+PROJECT_BIM = os.path.join(__dir__, "core","projectsbim")
+LIBRARY_PATH = os.path.join(__dir__, "Componentes")
 
 
 # Name 
-__title__ = "Engenharia Eletrica"
+__title__ = "Engenharia"
 __author__ = "Lucas Losinskas"
 __url__ = "https://github.com/llosinskas/eletroAlpha"

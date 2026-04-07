@@ -3,9 +3,7 @@
 # year 2023
 
 
-import os
-
-from annotated_types import doc 
+import os 
 from PySide import QtGui, QtCore, QtWidgets
 import FreeCADGui as Gui
 import FreeCAD as App
@@ -30,28 +28,27 @@ except AttributeError:
 
 class newProjetctEletrical:
    
-   
     def Activated(self):
         doc = App.ActiveDocument
         if doc is None:
             App.Console.PrintError('No active document found.\n')
             return 
         
-        folder = doc.addObject("App::DocumentObjectGroup", "01_Arquitetura_referencia")
-        folder = doc.addObject("App::DocumentObjectGroup", "02_Niveis")
-        folder = doc.addObject("App::DocumentObjectGroup", "03_Pontos_eletricos")
-        folder = doc.addObject("App::DocumentObjectGroup", "04_Quadros")
-        folder = doc.addObject("App::DocumentObjectGroup", "05_Tomadas")
-        folder = doc.addObject("App::DocumentObjectGroup", "06_Iluminacao")
-        folder = doc.addObject("App::DocumentObjectGroup", "07_Equipamentos")
-        folder = doc.addObject("App::DocumentObjectGroup", "08_Eletrodutos")
-        folder = doc.addObject("App::DocumentObjectGroup", "09_Eletrocalha")
-        folder = doc.addObject("App::DocumentObjectGroup", "10_Cabos")
-        folder = doc.addObject("App::DocumentObjectGroup", "11_Aterramento")
-        folder = doc.addObject("App::DocumentObjectGroup", "12_Tabelas_e_planilhas")
-        folder = doc.addObject("App::DocumentObjectGroup", "13_Detalhes")
-        folder = doc.addObject("App::DocumentObjectGroup", "14_Diagramas")
-        folder = doc.addObject("App::DocumentObjectGroup", "15_Projetos_2D")
+        folder = doc.addObject("App::DocumentObjectGroup", "Arquitetura_referencia")
+        folder = doc.addObject("App::DocumentObjectGroup", "Niveis")
+        folder = doc.addObject("App::DocumentObjectGroup", "Pontos_eletricos")
+        folder = doc.addObject("App::DocumentObjectGroup", "Quadros")
+        folder = doc.addObject("App::DocumentObjectGroup", "Tomadas")
+        folder = doc.addObject("App::DocumentObjectGroup", "Iluminacao")
+        folder = doc.addObject("App::DocumentObjectGroup", "Equipamentos")
+        folder = doc.addObject("App::DocumentObjectGroup", "Eletrodutos")
+        folder = doc.addObject("App::DocumentObjectGroup", "Eletrocalha")
+        folder = doc.addObject("App::DocumentObjectGroup", "Cabos")
+        folder = doc.addObject("App::DocumentObjectGroup", "Aterramento")
+        folder = doc.addObject("App::DocumentObjectGroup", "Tabelas_e_planilhas")
+        folder = doc.addObject("App::DocumentObjectGroup", "Detalhes")
+        folder = doc.addObject("App::DocumentObjectGroup", "Diagramas")
+        folder = doc.addObject("App::DocumentObjectGroup", "Projetos_3D")
                 
         doc.recompute()
 

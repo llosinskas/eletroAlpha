@@ -1,8 +1,9 @@
+
 import FreeCAD as App
 import FreeCADGui as Gui
-import Spreadsheet
 import os
-import WorkbenchBase
+import sys 
+import importlib
 
 
 class GetSpaces():
@@ -21,18 +22,58 @@ class GetSpaces():
         return {'Pixmap': os.path.join(os.path.dirname(os.path.abspath(__file__)),"Resources/Icons", 'newProject.svg'), 'MenuText': "Pegar Espaços", 'ToolTip':"Pegar todos os espaços do projeto"}
     
 class ReiniciarBancada():
-    
-
     def Activated(self):
+        try:
+            import WorkbenchBase
+            workbench_name = WorkbenchBase.__title__
+            
+            # Remove a bancada do GUI
+            try:
+                Gui.removeWorkbench(workbench_name)
+            except:
+                pass
+            
+            # Lista de módulos para remover e recarregar
+            modules_to_reload = [
+                'NewProject',
+                'EletricProject',
+                'InsertComponent',
+                'Tools',
+                'GerarUnifilar',
+                'Reports',
+                'importQEletrotech',
+                'ManagerWorkbench',
+                'Eletro_libs',
+                'calculo_cabo',
+                'InitGui'
+            ]
+            
+            # Remove módulos do sys.modules
+            for module_name in list(sys.modules.keys()):
+                if any(module_name.startswith(mod) for mod in modules_to_reload):
+                    del sys.modules[module_name]
+            
+            # Recarrega os módulos principais
+            importlib.reload(WorkbenchBase)
         
-        print(WorkbenchBase.__title__)
-        # InitGui.eletroAlpha(self).Initialize(self)
-        Gui.activateWorkbench(WorkbenchBase.__title__)
-        Gui.updateGui()
+            import InitGui
+            importlib.reload(InitGui)
+            
+            # Ativa a bancada novamente
+            Gui.activateWorkbench(workbench_name)
+            Gui.updateGui()
+            
+            App.Console.PrintMessage("✓ Bancada recarregada com sucesso!\n")
+            
+        except Exception as e:
+            App.Console.PrintError(f"Erro ao recarregar bancada: {str(e)}\n")
 
-        
     def GetResources(self):
-        return {'Pixmap': os.path.join(os.path.dirname(os.path.abspath(__file__)),"Resources/Icons", 'newProject.svg'), 'MenuText': "Novo Projeto", 'ToolTip':"Iniciar um novo projeto"}
+        return {
+            'Pixmap': os.path.join(os.path.dirname(os.path.abspath(__file__)), "Resources/Icons", 'recompute.svg'), 
+            'MenuText': "Reiniciar Bancada", 
+            'ToolTip': "Recarregar todos os módulos da bancada sem fechar o FreeCAD"
+        }
     
 Gui.addCommand("GetSpaces", GetSpaces())
 Gui.addCommand("ReiniciarBancada", ReiniciarBancada())

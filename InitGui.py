@@ -3,25 +3,18 @@
 # year 2023
 
 import os 
+import sys
 import FreeCADGui as Gui
-import sys, FreeCAD
-import WorkbenchBase
-
-
-
-__title__ = WorkbenchBase.__title__
-__author__ = WorkbenchBase.__author__
-__url__ = WorkbenchBase.__url__
-
-# paths configs
-global logo_icon, path_base
-path_base = WorkbenchBase.__dir__
-logo_icon = os.path.join(WorkbenchBase.ICON_PATH, "logo.svg")
+from FreeCADGui import Workbench
+import FreeCAD
 
 
 class Circuits(Workbench):
+    import WorkbenchBase
+    logo_icon = os.path.join(WorkbenchBase.ICON_PATH, "logo.svg")
+    __title__ = WorkbenchBase.__title__
     
-    MenuText = "Circuits"
+    MenuText = __title__
     ToolTip = "Bancada para a criação de projetos elétricos: Residênciais, Indústriais e Comerciais"
     Icon = logo_icon
 
@@ -154,9 +147,10 @@ class Circuits(Workbench):
         self.listQEletrotech = ["ImportQET","Add_Node"]
         self.appendToolbar("Importar arquivo do QEletrotech", self.listQEletrotech)
         
-        # import ManagerWorkbench
-        # self.listManagerWorkbench = ["AtualizarBancada"]
-        # self.appendToolbar("Gerenciar a bancada", self.listManagerWorkbench)
+        import ProjetoQuadro
+        self.listProjetoQuadro = ["NewQuadro"]
+        self.appendToolbar("Criar quadro elétrico", self.listProjetoQuadro)
+        
 
         Gui.updateGui()
     def Activated(self):
