@@ -12,6 +12,6 @@ PROJECT_BIM = os.path.join(__dir__, "core/projectsbim")
 
 
 # Name 
-__title__ = "Circuits"
+__title__ = "Engenharia Eletrica"
 __author__ = "Lucas Losinskas"
 __url__ = "https://github.com/llosinskas/eletroAlpha"

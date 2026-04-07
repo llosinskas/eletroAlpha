@@ -35,7 +35,7 @@ class newProjetctEletrical:
             App.Console.PrintError('No active document found.\n')
             return 
 
-        folder = doc.addObject("App::DocumentObjectGroup", "Projeto 3D")
+        folder = doc.addObject("App::DocumentObjectGroup", "01_Arquitetura_referencia")
         folder = doc.addObject("App::DocumentObjectGroup", "Projeto 2D")
         folder = doc.addObject("App::DocumentObjectGroup", "Equipamentos")
                 
