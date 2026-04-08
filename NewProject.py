@@ -1,13 +1,13 @@
 # Classe para criar um novo projeto elétrico. 
 #  Copyright Lucas Losinskas 
 # year 2023
-
-
 import os 
+
 from PySide import QtGui, QtCore, QtWidgets
 import FreeCADGui as Gui
 import FreeCAD as App
 import Spreadsheet
+
 from UI.insert_circuit import InsertCircuit
 import WorkbenchBase as WB
 
@@ -48,7 +48,7 @@ class newProjetctEletrical:
         folder = doc.addObject("App::DocumentObjectGroup", "Tabelas_e_planilhas")
         folder = doc.addObject("App::DocumentObjectGroup", "Detalhes")
         folder = doc.addObject("App::DocumentObjectGroup", "Diagramas")
-        folder = doc.addObject("App::DocumentObjectGroup", "Projetos_3D")
+        folder = doc.addObject("App::DocumentObjectGroup", "Projetos_2D")
                 
         doc.recompute()
 

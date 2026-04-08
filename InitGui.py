@@ -1,169 +1,238 @@
-# Função para iniciar a bancada 
-# Copyright Lucas Losinskas 
-# year 2023
+"""
+Módulo para iniciar a bancada de projetos elétricos, onde serão listados os comandos para criar um novo projeto, gerar o diagrama unifilar, criar a planilha de circuitos, entre outros.
+
+Author: Lucas Losinskas
+Date: 2026
+Última atualização: 2026-03
+Versão: 0.01
+"""
 
 import os 
 import sys
 import FreeCADGui as Gui
 from FreeCADGui import Workbench
 import FreeCAD
+import WorkbenchBase
 
 
 class Circuits(Workbench):
+    """Bancada para a criação e gerenciamento de projetos elétricos.
+    Interface para criar novos projetos, modificação, componentes elétricos, geração de diagramas unifilares, entre outros.
+
+    Attributes:
+        __title__(str): Título da bancada
+        MenuText(str): Texto exibido no menu
+        ToolTip(str): Dica exibida ao deixar o mouse sobre o comando
+        Icon(str): Caminho para o ícone da bancada
+    """
+    # Tem que importar dentro da classe para evitar erros de importação circular, já que os comandos importam a bancada e a bancada importa os comandos.
     import WorkbenchBase
-    logo_icon = os.path.join(WorkbenchBase.ICON_PATH, "logo.svg")
-    __title__ = WorkbenchBase.__title__
+    WORKBENCH_NAME = WorkbenchBase.__title__
+    TOOLTIP = WorkbenchBase.__ToolTip__
+    LOGO_ICON = os.path.join(WorkbenchBase.ICON_PATH, "logo.svg")
+
+    MenuText = WORKBENCH_NAME
+    ToolTip = TOOLTIP
+    Icon = LOGO_ICON
+
+    # ==========================================
+    # Definição de toolbar
+    SNAP_TOOLS = [
+        "Draft_ToggleGrid", 
+        "Draft_Snap_Lock", 
+        "Draft_Snap_Midpoint", 
+        "Draft_Snap_Perpendicular", 
+        "Draft_Snap_Grid", 
+        "Draft_Snap_Intersection", 
+        "Draft_Snap_Parallel", 
+        "Draft_Snap_Endpoint", 
+        "Draft_Snap_Angle", 
+        "Draft_Snap_Center", 
+        "Draft_Snap_Extension", 
+        "Draft_Snap_Near", 
+        "Draft_Snap_Ortho", 
+        "Draft_Snap_Special", 
+        "Draft_Snap_Dimensions", 
+        "Draft_Snap_WorkingPlane"
+    ]
+    DRAWING_TOOLS = [
+        "BIM_Sketch", 
+        "Draft_Line",
+        "Draft_Circle", 
+        "Draft_Wire", 
+        "Draft_Arc", 
+        "Draft_Arc_3Points", 
+        "Draft_Ellipse", 
+        "Draft_Polygon", 
+        "Draft_Rectangle", 
+        "Draft_BSpline", 
+        "Draft_BezCurve", 
+        "Draft_Point",
+    ]
+    MODIFY_TOOLS = [
+        "Draft_Move", 
+        "Draft_Rotate", 
+        "Draft_Offset", 
+        "Draft_Trimex", 
+        "Draft_Join", 
+        "Draft_Scale", 
+        "Draft_Edit", 
+        "Draft_Mirror", 
+        "Draft_OrthoArray", 
+        "Draft_PathArray", 
+        "Draft_Draft2Sketch",
+    ]
+    BIM_TOOLS = [
+        "BIM_Project",
+        "Arch_Space", 
+        "Arch_Wall", 
+        "BIM_Column", 
+        "BIM_Beam", 
+        "BIM_Slab", 
+        "BIM_Door", 
+        "BIM_Library" 
+    ]
     
-    MenuText = __title__
-    ToolTip = "Bancada para a criação de projetos elétricos: Residênciais, Indústriais e Comerciais"
-    Icon = logo_icon
+    ANNOTATION_TOOLS = [
+        "BIM_Text",
+        "Arch_SectionPlane",
+        "BIM_TDView",
+        "BIM_Shape2DView",
+    ]
+    
+    PROJECT_TOOLS = [
+        "ComponentEletric", 
+        "Gerar3D", 
+        "Cabo"
+    ]
+    NEW_PROJECT_TOOLS = [
+        'newProjetctEletrical',
+        'newSpreadsheet', 
+        'AddSpreadsheet', 
+        'ListElements',
+        'CreateModel'
+    ]
+    
+    INSERT_COMPONENTS_TOOLS = [
+        'InsertComponent', 
+        'InsertTugs', 
+        'InsertEquipaments', 
+        'InsertWire', 
+        'InsertConduit', 
+        'InsertCableTray'
+    ]
+    REPORT_TOOLS = [
+        'GenerateReport'
+    ]
+    
+    UTILITY_TOOLS = [
+        "GetSpaces", 
+        "ReiniciarBancada"
+    ]
+    
+    UNIFILAR_TOOLS = [
+        "GerarUnifilar", 
+        "GerarPlanilha", 
+        "AddCircuito"
+    ]
+    
+    QELETROTECH_TOOLS = [
+        "ImportQET",
+        "Add_Node"
+    ]
+    
+    QUADRO_TOOLS = [
+        "NewQuadro"
+    ]
 
-    def Initialize(self):
-        """Essa função é executada quando a bancada é ativada pela primeira vez
+    # ==========================================
+    # Definição de toolbars com labels 
+    TOOLBARS = [
+        ("Snap", SNAP_TOOLS),
+        ("Desenho", DRAWING_TOOLS),
+        ("Modificador", MODIFY_TOOLS),
+        ("BIM", BIM_TOOLS),
+        ("Anotações", ANNOTATION_TOOLS),
+        ("Inserir Componentes", PROJECT_TOOLS),
+        ("Novo Projeto", NEW_PROJECT_TOOLS),
+        ("Componentes", INSERT_COMPONENTS_TOOLS),
+        ("Relatórios", REPORT_TOOLS),
+        ("Ferramentas", UTILITY_TOOLS),
+        ("Diagrama Unifilar", UNIFILAR_TOOLS),
+        ("QEletrotech", QELETROTECH_TOOLS),
+        ("Quadro Elétrico", QUADRO_TOOLS),
+    ]    
+
+    def _import_required_modules(self)->None:
+        """Importa todos os módulos necessários para a bancadada
+        Agrupa todos as importações para organizar melhor o código 
         """
-
         import bimcommands
-        # import BimWorkingPlaneTools
         import DraftTools
         import NewProject
         import EletricProject
         import InsertComponent
         import Arch
         import Draft
-
         import GerarUnifilar
-        # import BimWrappedTools
-     
-        
-        self.snap = [
-            "Draft_ToggleGrid", 
-            "Draft_Snap_Lock", 
-            "Draft_Snap_Midpoint", 
-            "Draft_Snap_Perpendicular", 
-            "Draft_Snap_Grid", 
-            "Draft_Snap_Intersection", 
-            "Draft_Snap_Parallel", 
-            "Draft_Snap_Endpoint", 
-            "Draft_Snap_Angle", 
-            "Draft_Snap_Center", 
-            "Draft_Snap_Extension", 
-            "Draft_Snap_Near", 
-            "Draft_Snap_Ortho", 
-            "Draft_Snap_Special", 
-            "Draft_Snap_Dimensions", 
-            "Draft_Snap_WorkingPlane"
-        ]
-        self.appendToolbar("Snap", self.snap)
-        
-        self.draftingtools = [
-                "BIM_Sketch", 
-                "Draft_Line",
-                "Draft_Circle", 
-                "Draft_Wire", 
-                "Draft_Arc", 
-                "Draft_Arc_3Points", 
-                "Draft_Ellipse", 
-                "Draft_Polygon", 
-                "Draft_Rectangle", 
-                "Draft_BSpline", 
-                "Draft_BezCurve", 
-                "Draft_Point", 
-                 
-        ]
-        self.appendToolbar("desenho", self.draftingtools)
-        
-        self.modify = [
-            "Draft_Move", 
-            "Draft_Rotate", 
-            "Draft_Offset", 
-            "Draft_Trimex", 
-            "Draft_Join", 
-            "Draft_Scale", 
-            "Draft_Edit", 
-            "Draft_Mirror", 
-            "Draft_OrthoArray", 
-            "Draft_PathArray", 
-            "Draft_Edit", 
-            "Draft_Draft2Sketch",
-        ]
-        self.appendToolbar("Modificador", self.modify)
-       
-        
-        self.bimtools = [
-            "BIM_Project",
-            "Arch_Space", 
-            "Arch_Wall", 
-            "BIM_Column", 
-            "BIM_Beam", 
-            "BIM_Slab", 
-            "BIM_Door", 
-            "BIM_Library" 
-            
-        ]
-        self.appendToolbar("BIM", self.bimtools)
-        self.annotationtools = [
-            "BIM_Text",
-            "Arch_SectionPlane",
-            "BIM_TDView",
-            "BIM_Shape2DView",
-        ]
-        self.appendToolbar("Anotações", self.annotationtools)
-
-        
-        self.listProjects=[
-            "ComponentEletric", 
-            "Gerar3D", 
-            "Cabo"
-            ]
-        self.appendToolbar("Inseirir componentes", self.listProjects)
-
-        
-        self.projectList=[
-            'newProjetctEletrical',
-            'newSpreadsheet', 
-            'AddSpreadsheet', 
-            'ListElements',
-            'CreateModel'
-            
-            ]
-        self.appendToolbar("Novo Projeto", self.projectList)
-
-       
-        self.componenents=['InsertComponent', 'InsertTugs', 'InsertEquipaments', 'InsertWire', 'InsertConduit', 'InsertCableTray']
-        self.appendToolbar('Inserir Componentes', self.componenents)
-
         import Reports
-        self.listreports = ['GenerateReport']
-        self.appendToolbar('Gerar o relatório da instalação', self.listreports)
-
         import Tools
-        self.listTools = ["GetSpaces", "ReiniciarBancada"]
-        self.appendToolbar("Ferramentas", self.listTools)
-
-        self.listGerar = ["GerarUnifilar", "GerarPlanilha", "AddCircuito"]
-        self.appendToolbar("Gerar diagrama unifilar", self.listGerar)
-
         import importQEletrotech
-        self.listQEletrotech = ["ImportQET","Add_Node"]
-        self.appendToolbar("Importar arquivo do QEletrotech", self.listQEletrotech)
-        
         import ProjetoQuadro
-        self.listProjetoQuadro = ["NewQuadro"]
-        self.appendToolbar("Criar quadro elétrico", self.listProjetoQuadro)
-        
+    def _setup_toolbars(self) ->None:
+        """ Configura todas as toolbars da bancadas. 
+        Itera sobre as Toolbars e adiciona cada uma delas
 
+        Returns: 
+            None
+        """
+        for label, tools in self.TOOLBARS:
+            self.appendToolbar(label, tools)
+
+    def Initialize(self)->None:
+        """Essa função é executada quando a bancada é ativada pela primeira vez
+        Returns:
+            None
+        """
+        self._import_required_modules()
+        self._setup_toolbars()
         Gui.updateGui()
+
+
     def Activated(self):
+        """Executado quando a bancada é ativada
+        
+        Returns:
+            None
+        """
         return 
     
     def Deactivated(self): 
+        """Executado quando a bancada é desativada
+        Returns:
+            None
+        """
         return 
     
     def ContextMenu(self, recipient):
-        self.appendContextMenu("EletroAlfa", self.list)
+        """Configura o menu de contexto
+        
+        Args: 
+            recipient: O objeto que receberá o menu de contexto
+        
+        Returns:
+            None
+        """
+        pass
+        #self.appendContextMenu("EletroAlfa", self.list)
 
-    def GetClassName(self):
+    def GetClassName(self)->str:
+        """Retorna o tipo de classe da bancada.
+        
+        Returns:
+            str: Identificador da classe FreeCAD
+        """
+
         return "Gui::PythonWorkbench"
-
 
 Gui.addWorkbench(Circuits())

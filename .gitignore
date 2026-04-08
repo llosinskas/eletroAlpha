@@ -113,5 +113,5 @@ ENV/
 tmp.py
 # FreeCAD backup files.
 *.fcstd1
-
+.github/
 test_pdf.py
