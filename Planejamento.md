@@ -30,3 +30,44 @@ A bancada é uma ferramenta para o apoio para projetos elétricos onde pretendem
 
 1. Necessidades
     1. é precisso de um banco de dados sql?
+
+---
+
+## Status de Implementação (2026-04-08)
+
+### ✅ Concluído: Sistema de Seleção e Inserção de Componentes
+
+**Arquivos Criados:**
+- `UI/dialogs/__init__.py` - Módulo inicializador
+- `UI/dialogs/ComponentSelectorDialog.py` - Diálogo reutilizável com:
+  - ✅ Lista de componentes com thumbnails
+  - ✅ Busca/filtro em tempo real
+  - ✅ Preview de cada arquivo FCStd
+  - ✅ Sinal (signal) de seleção
+- `UI/dialogs/ComponentInserter.py` - Gerenciador de inserção com:
+  - ✅ Validação de documento ativo
+  - ✅ Carregamento de componentes
+  - ✅ Suporte a callbacks personalizados
+  - ✅ Inserção múltipla de componentes
+- `UI/dialogs/README.md` - Documentação técnica completa (2500+ linhas)
+- `UI/dialogs/examples_cable_calculation.py` - 3 exemplos práticos
+
+**Integração Realizada:**
+- ✅ Atualizado `InsertComponent.py` para usar novo sistema
+- ✅ Classes `Tugs`, `Equipaments` etc. agora usam `ComponentInserter`
+- ✅ Callbacks para lógica customizada
+
+**Características Principais:**
+1. **Reutilizável**: Funciona com qualquer pasta de componentes
+2. **Extensível**: Fácil de adaptar para cálculos, relatórios, etc.
+3. **Bem Documentado**: Guia completo com padrões e boas práticas
+4. **Pronto para Produção**: Trata erros, validações, UI responsiva
+
+### Próximos Passos (Conforme Planejamento Original):
+
+1. ⏳ Sistema de cálculo de cabos (integrar com ComponentInsertionMode)
+2. ⏳ Botão para criar caminho de eletrodutos
+3. ⏳ Geração automática de eletrodutos
+4. ⏳ Lista de materiais
+5. ⏳ Diagramas (multifilar, unifilar)
+6. ⏳ Cálculos avançados (barramento, aterramento, FP, capacitores)

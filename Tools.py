@@ -27,12 +27,6 @@ class ReiniciarBancada():
             import WorkbenchBase
             workbench_name = WorkbenchBase.__title__
             
-            # Remove a bancada do GUI
-            try:
-                Gui.removeWorkbench(workbench_name)
-            except:
-                pass
-            
             # Lista de módulos para remover e recarregar
             modules_to_reload = [
                 'NewProject',
@@ -45,19 +39,24 @@ class ReiniciarBancada():
                 'ManagerWorkbench',
                 'Eletro_libs',
                 'calculo_cabo',
-                'InitGui'
+                'UI.dialogs',
+                'UI.dialogs.ComponentSelectorDialog',
+                'UI.dialogs.ComponentInserter',
             ]
             
             # Remove módulos do sys.modules
             for module_name in list(sys.modules.keys()):
-                if any(module_name.startswith(mod) for mod in modules_to_reload):
+                if any(module_name == mod or module_name.startswith(mod + '.') for mod in modules_to_reload):
                     del sys.modules[module_name]
             
-            # Recarrega os módulos principais
+            # Recarrega WorkbenchBase
             importlib.reload(WorkbenchBase)
-        
+            
+            # Remove InitGui para forçar reimportação limpa
+            if 'InitGui' in sys.modules:
+                del sys.modules['InitGui']
+            
             import InitGui
-            importlib.reload(InitGui)
             
             # Ativa a bancada novamente
             Gui.activateWorkbench(workbench_name)

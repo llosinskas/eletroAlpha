@@ -189,6 +189,27 @@ class Circuits(Workbench):
         for label, tools in self.TOOLBARS:
             self.appendToolbar(label, tools)
 
+    def _setup_menus(self) -> None:
+        """Configura os menus da bancada.
+        
+        Returns:
+            None
+        """
+        # Menu Componentes
+        self.appendMenu("&Componentes", self.INSERT_COMPONENTS_TOOLS)
+        
+        # Menu Novo Projeto
+        self.appendMenu("&Novo Projeto", self.NEW_PROJECT_TOOLS)
+        
+        # Menu Diagrama Unifilar
+        self.appendMenu("&Diagrama Unifilar", self.UNIFILAR_TOOLS)
+        
+        # Menu Quadro Elétrico
+        self.appendMenu("&Quadro Elétrico", self.QUADRO_TOOLS)
+        
+        # Menu Relatórios
+        self.appendMenu("&Relatórios", self.REPORT_TOOLS)
+
     def Initialize(self)->None:
         """Essa função é executada quando a bancada é ativada pela primeira vez
         Returns:
@@ -196,6 +217,7 @@ class Circuits(Workbench):
         """
         self._import_required_modules()
         self._setup_toolbars()
+        self._setup_menus()
         Gui.updateGui()
 
 
@@ -205,6 +227,10 @@ class Circuits(Workbench):
         Returns:
             None
         """
+        print("✓ Bancada Eletro Alpha ativada!")
+        print("  → Sistema de Componentes pronto")
+        print("  → Toolbar 'Componentes' disponível")
+        print("  → Menu 'Componentes' disponível")
         return 
     
     def Deactivated(self): 
