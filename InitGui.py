@@ -227,6 +227,13 @@ class Circuits(Workbench):
         Returns:
             None
         """
+        # Inicializa ícones com suporte a tema dark
+        try:
+            from utils.icon_manager import initialize_dark_theme_icons
+            initialize_dark_theme_icons()
+        except Exception as e:
+            print(f"Aviso: Não foi possível inicializar ícones otimizados: {e}")
+        
         print("✓ Bancada Eletro Alpha ativada!")
         print("  → Sistema de Componentes pronto")
         print("  → Toolbar 'Componentes' disponível")
