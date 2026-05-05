@@ -287,13 +287,7 @@ Ver arquivo `UI/dialogs/examples_cable_calculation.py` para 3 exemplos completos
 ## 📝 Notas de Versão
 
 ### v0.2 (2026-04-08)
-- ✅ **Suporte completo a tema dark**
-  - Detecção automática de tema (light/dark)
-  - Aprimoramento de ícones com contorno branco (drop-shadow SVG)
-  - 39 ícones processados (36 principais + 3 símbolos)
-  - Inicialização automática ao ativar bancada
-- ✅ Novo módulo `utils/icon_manager.py`
-- ✅ Documentação em `utils/ICON_MANAGER.md`
+
 
 ### v0.1 (2026-04-08)
 - ✅ Implementação do sistema de componentes
