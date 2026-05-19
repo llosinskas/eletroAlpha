@@ -2,7 +2,10 @@ import os
 import FreeCAD as App
 import FreeCADGui as Gui
 import zipfile
-from PySide2 import QtWidgets, QtCore, QtGui
+try:
+    from PySide2 import QtWidgets, QtCore, QtGui
+except ImportError:
+    from PySide6 import QtWidgets, QtCore, QtGui
 
 class PartCard(QtWidgets.QWidget):
     def __init__(self, name, path, parent=None):
@@ -36,7 +39,9 @@ class PartCard(QtWidgets.QWidget):
                     data = z.read("thumbnails/Thumbnail.png")
                     pixmap = QtGui.QPixmap()
                     pixmap.loadFromData(data)
-                    self.thumb.setPixmap(96, 96, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+                    self.thumb.setPixmap(
+                        pixmap.scaled(96, 96, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+                    )
                     return 
         except Exception:
             pass

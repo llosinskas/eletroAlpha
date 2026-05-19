@@ -1,8 +1,14 @@
-import PySide
 import os 
 import FreeCADGui as Gui
 import FreeCAD as App
-from PySide import QtCore, QtGui
+try:
+    from PySide2 import QtCore, QtGui, QtWidgets
+except ImportError:
+    try:
+        from PySide6 import QtCore, QtGui, QtWidgets
+    except ImportError:
+        from PySide import QtCore, QtGui
+        QtWidgets = QtGui
 import freecad.Circuits as WB
 import Sketcher
 import Part

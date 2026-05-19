@@ -36,19 +36,19 @@ class ReiniciarBancada():
             
             # Lista de módulos para remover e recarregar
             modules_to_reload = [
-                'NewProject',
-                'EletricProject',
-                'InsertComponent',
-                'Tools',
-                'GerarUnifilar',
-                'Reports',
-                'importQEletrotech',
-                'ManagerWorkbench',
-                'Eletro_libs',
-                'calculo_cabo',
-                'UI.dialogs',
-                'UI.dialogs.ComponentSelectorDialog',
-                'UI.dialogs.ComponentInserter',
+                'freecad.Circuits.commands.new_project',
+                'freecad.Circuits.commands.projeto_eletrico',
+                'freecad.Circuits.commands.insert_component',
+                'freecad.Circuits.commands.tools',
+                'freecad.Circuits.commands.gerar_unifilar',
+                'freecad.Circuits.commands.reports',
+                'freecad.Circuits.commands.import_QEletrotech',
+                'freecad.Circuits.commands.manager_workbench',
+                'freecad.Circuits.commands.eletro_libs',
+                'freecad.Circuits.commands.calculo_cabo',
+                'freecad.Circuits.init_gui',
+                'freecad.Circuits.UI.dialogs',
+                'freecad.Circuits.UI.ListaPeca',
             ]
             
             # Remove módulos do sys.modules

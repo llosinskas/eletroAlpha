@@ -7,7 +7,14 @@ import FreeCAD as App
 import freecad.Circuits as WB
 import Part 
 import Draft
-from PySide import QtWidgets, QtCore
+try:
+    from PySide2 import QtCore, QtGui, QtWidgets
+except ImportError:
+    try:
+        from PySide6 import QtCore, QtGui, QtWidgets
+    except ImportError:
+        from PySide import QtCore, QtGui
+        QtWidgets = QtGui
 
 import re
 
@@ -197,18 +204,87 @@ class Add_circuito(QtWidgets.QDialog):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Adicionar Circuito")
+        self.setMinimumWidth(350)
         
         layout = QtWidgets.QFormLayout()
-        self.descricao = QtWidgets.QLineEdit()
+        
+        self.n_circuito = QtWidgets.QLineEdit()
+        layout.addRow("Identificação (Nº):", self.n_circuito)
+        
+        self.destino = QtWidgets.QLineEdit()
+        layout.addRow("Destino do Circuito:", self.destino)
+        
+        self.potencia = QtWidgets.QLineEdit()
+        layout.addRow("Potência [W ou kW]:", self.potencia)
+        
+        self.tensao = QtWidgets.QComboBox()
+        self.tensao.addItems(["127", "220", "380"])
+        layout.addRow("Tensão [V]:", self.tensao)
+        
+        self.corrente = QtWidgets.QLineEdit()
+        layout.addRow("Corrente de Projeto [A]:", self.corrente)
+        
+        self.cabo = QtWidgets.QComboBox()
+        self.cabo.addItems(["1.5", "2.5", "4", "6", "10", "16", "25", "35", "50", "70", "95", "120"])
+        layout.addRow("Bitola do Cabo [mm²]:", self.cabo)
+        
+        self.disjuntor = QtWidgets.QComboBox()
+        self.disjuntor.addItems(["10", "16", "20", "25", "32", "40", "50", "63", "80", "100", "125"])
+        layout.addRow("Corrente do Disjuntor [A]:", self.disjuntor)
+        
+        self.curva = QtWidgets.QComboBox()
+        self.curva.addItems(["B", "C", "D"])
+        layout.addRow("Curva do Disjuntor:", self.curva)
+        
+        fases_layout = QtWidgets.QHBoxLayout()
+        self.fase_r = QtWidgets.QCheckBox("R")
+        self.fase_s = QtWidgets.QCheckBox("S")
+        self.fase_t = QtWidgets.QCheckBox("T")
+        self.fase_r.setChecked(True)
+        fases_layout.addWidget(self.fase_r)
+        fases_layout.addWidget(self.fase_s)
+        fases_layout.addWidget(self.fase_t)
+        layout.addRow("Fases:", fases_layout)
+        
+        self.neutro = QtWidgets.QCheckBox("Possui Neutro")
+        self.neutro.setChecked(True)
+        layout.addRow("", self.neutro)
+        
+        self.terra = QtWidgets.QCheckBox("Possui Terra")
+        self.terra.setChecked(True)
+        layout.addRow("", self.terra)
+        
+        self.dr = QtWidgets.QCheckBox("Possui Proteção DR")
+        layout.addRow("", self.dr)
+        
+        self.corrente_dr = QtWidgets.QLineEdit()
+        self.corrente_dr.setPlaceholderText("Ex: 30mA")
+        layout.addRow("Corrente do DR:", self.corrente_dr)
 
-        layout.addRow("Descrição do circuito", self.descricao)
-
+        self.submit_btn = QtWidgets.QPushButton("Adicionar Circuito")
+        self.submit_btn.clicked.connect(self.accept)
+        layout.addRow("", self.submit_btn)
+        
         self.setLayout(layout)
 
-
     def get_dados(self):
-        dados = {}
-        return dados
+        return {
+            "N_circuito": self.n_circuito.text(),
+            "Destino": self.destino.text(),
+            "Potencia": self.potencia.text(),
+            "Tensao": self.tensao.currentText(),
+            "Corrente": self.corrente.text(),
+            "Cabo": self.cabo.currentText(),
+            "Disjuntor": self.disjuntor.currentText(),
+            "Curva": self.curva.currentText(),
+            "Fase_R": str(self.fase_r.isChecked()),
+            "Fase_S": str(self.fase_s.isChecked()),
+            "Fase_T": str(self.fase_t.isChecked()),
+            "Neutro": str(self.neutro.isChecked()),
+            "Terra": str(self.terra.isChecked()),
+            "DR": str(self.dr.isChecked()),
+            "Corrente_DR": self.corrente_dr.text()
+        }
 
 class GerarUnifilar:
          
@@ -477,32 +553,47 @@ class GerarUnifilar:
         tensao_dps = sheet.get("L2")
         corrente_dps = sheet.get("M1")
 
-    def gerar_linha(self,doc, potencia, dr, bitola, position, corrente, comprimento):
-        sketch_body = doc.addObject("Sketcher::SketchObject", "Diagrama unifilar simples")
+    def gerar_linha(self, doc, potencia, dr, bitola, position, corrente, comprimento, group):
+        sketch_body = doc.addObject("Sketcher::SketchObject", "Circuito")
         sketch_body.Placement = position
-        sketch_body.addGeometry(Part.LineSegment(App.Vector(0,-comprimento/2),App.Vector(0, comprimento/2)), False)
-        sketch_body.addGeometry(Part.LineSegment(App.Vector(0,0),App.Vector(comprimento/2,0) ), False)
+        
+        # Linha horizontal do circuito para a direita
+        length = comprimento * 7
+        sketch_body.addGeometry(Part.LineSegment(App.Vector(0, 0), App.Vector(length, 0)), False)
+        
+        # Seta na ponta (direita)
+        sketch_body.addGeometry(Part.LineSegment(App.Vector(length, 0), App.Vector(length - comprimento/3, comprimento/4)), False)
+        sketch_body.addGeometry(Part.LineSegment(App.Vector(length, 0), App.Vector(length - comprimento/3, -comprimento/4)), False)
+        
+        # Símbolo do disjuntor do circuito (cruzando a linha horizontal)
+        sketch_body.addGeometry(Part.LineSegment(App.Vector(length/5, -comprimento/4), App.Vector(length/5, comprimento/4)), False)
+        
         if dr:
-            sketch_body.addGeometry(Part.LineSegment(App.Vector(comprimento/2,-comprimento/2), App.Vector(comprimento,-comprimento/2)), False)
-            sketch_body.addGeometry(Part.LineSegment(App.Vector(comprimento/2,-comprimento/2), App.Vector(comprimento/2,comprimento/2)), False)
-            sketch_body.addGeometry(Part.LineSegment(App.Vector(comprimento/2,comprimento/2), App.Vector(comprimento,comprimento/2)), False)
-            sketch_body.addGeometry(Part.LineSegment(App.Vector(comprimento,-comprimento/2), App.Vector(comprimento,comprimento/2)), False)
+            # Símbolo do DR (retângulo)
+            w = comprimento / 1.5
+            h_dr = comprimento / 1.5
+            x_dr = length/2
+            sketch_body.addGeometry(Part.LineSegment(App.Vector(x_dr - w/2, -h_dr/2), App.Vector(x_dr + w/2, -h_dr/2)), False)
+            sketch_body.addGeometry(Part.LineSegment(App.Vector(x_dr - w/2, h_dr/2), App.Vector(x_dr + w/2, h_dr/2)), False)
+            sketch_body.addGeometry(Part.LineSegment(App.Vector(x_dr - w/2, -h_dr/2), App.Vector(x_dr - w/2, h_dr/2)), False)
+            sketch_body.addGeometry(Part.LineSegment(App.Vector(x_dr + w/2, -h_dr/2), App.Vector(x_dr + w/2, h_dr/2)), False)
             
-            center_position = App.Vector(comprimento,comprimento)
-            text = Draft.make_text(["DR"], placement =center_position , screen =None, height=None, line_spacing=None)
-            print(text.Label)
-            text.Label= "DR"
-            Draft.autogroup(text)
-        else:
-            sketch_body.addGeometry(Part.LineSegment(App.Vector(comprimento/2, 0), App.Vector(comprimento, 0)), False)
+            GerarUnifilar.add_texto("DR", position.Base + App.Vector(x_dr, h_dr, 0), 0, comprimento/3, group)
 
+        group.addObject(sketch_body)
 
-        text = Draft.make_text([f"{potencia}"], placement = position, screen =None, height=None, line_spacing=None)
-        Draft.autogroup(text)
+        # Textos do circuito (Corrente, Bitola, Potência)
+        y_text = comprimento / 3
+        if corrente:
+            GerarUnifilar.add_texto(f"{corrente}A", position.Base + App.Vector(length/5 + comprimento/4, y_text, 0), 0, comprimento/2.5, group)
+        if bitola:
+            GerarUnifilar.add_texto(f"#{bitola}", position.Base + App.Vector(length/2 - comprimento, y_text, 0), 0, comprimento/2.5, group)
+        if potencia:
+            GerarUnifilar.add_texto(f"{potencia}W", position.Base + App.Vector(length - comprimento*2, y_text, 0), 0, comprimento/2.5, group)
 
     def Activated(self):
         doc = App.activeDocument()
-        heigth =100     
+        heigth = 100     
         quadros = []
         quadros = get_quadros(self, doc)
 
@@ -515,6 +606,52 @@ class GerarUnifilar:
                 doc.recompute()         
             group = doc.addObject("App::DocumentObjectGroup", f"diagrama {quadro.Label}")
             GerarUnifilar.diagrama(self, doc, heigth, group, quadro)
+            
+            # Lê os circuitos a partir da linha 6 da planilha
+            try:
+                ultima_linha = GerarPlanilha.count_rows(quadro)
+                if ultima_linha >= 6:
+                    num_circuitos = 0
+                    spacing = 5 * heigth
+                    for row in range(6, ultima_linha + 1):
+                        n_circuito = quadro.get(f"A{row}")
+                        if not n_circuito:
+                            continue
+                            
+                        destino = quadro.get(f"B{row}")
+                        potencia = quadro.get(f"C{row}")
+                        corrente = quadro.get(f"H{row}")
+                        bitola_circ = quadro.get(f"J{row}")
+                        # U = coluna 21 (DR) na lista corrigida: 
+                        # N_circuito(0), Destino(1), Potência(2), Tensão(3), Fator(4), Comprimento(5), Aparente(6), Corrente(7),
+                        # Queda(8), Cabo(9=J), Método(10), FatorAgrup(11), FatorTemp(12), Disj(13), Curva(14),
+                        # R(15), S(16), T(17), Neutro(18), Terra(19), DR(20=U), CorrenteDR(21=V), Desc(22=W)
+                        dr = str(quadro.get(f"U{row}")).lower() == "true"
+                        
+                        # Posição deste circuito no barramento (descendo em Y)
+                        pos_circuito = App.Vector(18*heigth, 5/2*heigth - num_circuitos * spacing, 0)
+                        
+                        # Prolonga o barramento verticalmente
+                        if num_circuitos > 0:
+                            pos_anterior = App.Vector(18*heigth, 5/2*heigth - (num_circuitos - 1) * spacing, 0)
+                            line_bus = Draft.make_line(pos_anterior, pos_circuito)
+                            group.addObject(line_bus)
+                            
+                        # Gera a ramificação horizontal
+                        pl_circ = App.Placement(pos_circuito, App.Rotation(0,0,0))
+                        GerarUnifilar.gerar_linha(self, doc, potencia, dr, bitola_circ, pl_circ, corrente, heigth, group)
+                        
+                        # Identificação do Circuito e Destino (na ponta direita da linha)
+                        length = heigth * 7
+                        ponta = pos_circuito + App.Vector(length + heigth/2, 0, 0)
+                        GerarUnifilar.add_texto(f"Circ. {n_circuito}", ponta + App.Vector(0, heigth/3, 0), 0, heigth*0.5, group)
+                        if destino:
+                            GerarUnifilar.add_texto(destino, ponta + App.Vector(0, -heigth/2, 0), 0, heigth*0.5, group)
+                            
+                        num_circuitos += 1
+            except Exception as e:
+                App.Console.PrintWarning(f"Não foi possível gerar os circuitos do quadro {quadro.Label}: {e}\n")
+                
         doc.recompute()
 
     def IsActive(self):
@@ -537,24 +674,48 @@ def get_quadros(self, doc):
 class AddCircuito:
     def Activated(self):
         doc = App.activeDocument()
-        height = 100
         quadros = get_quadros(self, doc)
-        for quadro in quadros:
-            dialog = Add_circuito()
-            if dialog.exec_():
-                doc=App.activeDocument()
-            planilha = quadro
-            header_sheet = [
-                "N_circuito", "Destino", "Potência [kW]", "Tensão [V]"
-                "Fator de potência","Comprimento", "Potência Aparente [kVA]", "Corrente [A]", 
-                "Queda de tensão [%]", "Cabo [mm²]", "Médo de instalação", "fator de agrupamento", "Fator de temperatura", 
-                "Disjuntor", "Curva disjuntor", 
-                "Fase R", "Fase S", "Fase T", "Neutro", "Terra"
-                "DR", "Corrente DR", "Descrição do Circuito"]
-            for index, header in enumerate(header_sheet):
-                coluna = chr(ord("A")+index)
-                planilha.set(f"{coluna}5", header)
-
+        if not quadros:
+            App.Console.PrintWarning("Nenhum quadro encontrado. Gere a planilha do quadro primeiro.\n")
+            return
+            
+        dialog = Add_circuito()
+        if dialog.exec_():
+            dados = dialog.get_dados()
+            
+            for quadro in quadros:
+                planilha = quadro
+                header_sheet = [
+                    "N_circuito", "Destino", "Potência [kW]", "Tensão [V]",
+                    "Fator de potência", "Comprimento", "Potência Aparente [kVA]", "Corrente [A]", 
+                    "Queda de tensão [%]", "Cabo [mm²]", "Método de instalação", "fator de agrupamento", "Fator de temperatura", 
+                    "Disjuntor", "Curva disjuntor", 
+                    "Fase R", "Fase S", "Fase T", "Neutro", "Terra",
+                    "DR", "Corrente DR", "Descrição do Circuito"
+                ]
+                for index, header in enumerate(header_sheet):
+                    coluna = chr(ord("A")+index)
+                    planilha.set(f"{coluna}5", header)
+                    
+                ultima_linha = GerarPlanilha.count_rows(planilha)
+                next_row = 6 if ultima_linha < 5 else ultima_linha + 1
+                
+                # Preenche a linha com os dados
+                planilha.set(f"A{next_row}", f"'{dados['N_circuito']}")
+                planilha.set(f"B{next_row}", f"'{dados['Destino']}")
+                planilha.set(f"C{next_row}", f"'{dados['Potencia']}")
+                planilha.set(f"D{next_row}", f"'{dados['Tensao']}")
+                planilha.set(f"H{next_row}", f"'{dados['Corrente']}")
+                planilha.set(f"J{next_row}", f"'{dados['Cabo']}")
+                planilha.set(f"N{next_row}", f"'{dados['Disjuntor']}")
+                planilha.set(f"O{next_row}", f"'{dados['Curva']}")
+                planilha.set(f"P{next_row}", f"'{dados['Fase_R']}")
+                planilha.set(f"Q{next_row}", f"'{dados['Fase_S']}")
+                planilha.set(f"R{next_row}", f"'{dados['Fase_T']}")
+                planilha.set(f"S{next_row}", f"'{dados['Neutro']}")
+                planilha.set(f"T{next_row}", f"'{dados['Terra']}")
+                planilha.set(f"U{next_row}", f"'{dados['DR']}")
+                planilha.set(f"V{next_row}", f"'{dados['Corrente_DR']}")
 
         doc.recompute()
 

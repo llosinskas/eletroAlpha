@@ -2,8 +2,11 @@ import os
 import FreeCAD as App
 import FreeCADGui as Gui
 import zipfile
-from PySide2 import QtWidgets, QtCore, QtGui
-from UI.Cards import PartCard
+try:
+    from PySide2 import QtWidgets, QtCore, QtGui
+except ImportError:
+    from PySide6 import QtWidgets, QtCore, QtGui
+from .Cards import PartCard
 import WorkbenchBase
 
 

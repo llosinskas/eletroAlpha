@@ -5,7 +5,16 @@ __reference__ = "Kliurka"
 """
 import FreeCAD as App
 import FreeCADGui as Gui
-from PySide import QtGui, QtWidgets
+
+try:
+    from PySide2 import QtGui, QtCore, QtWidgets
+except ImportError:
+    try:
+        from PySide6 import QtGui, QtCore, QtWidgets
+    except ImportError:
+        from PySide import QtGui, QtCore
+        QtWidgets = QtGui
+
 import Part
 import Draft
 import xml.etree.ElementTree as ET
@@ -176,12 +185,10 @@ class ImportQET:
         doc.recompute()
         
 
-        # doc.recompute()
     def IsActive(self):
         return True
     
     def GetResources(self):
-        
         return {'Pixmap': os.path.join(WB.ICON_PATH, 'QET-logo.png'), 'MenuText':'Importar .qet', 'ToolTip':'Importar um arquivo do QEletroTech para a geração de componentes 3D e cabos'}
 
 class Add_Node:
@@ -238,8 +245,7 @@ class Create_connection:
         Create_connection.create_connection(doc)
     
     def GetResources(self):
-        return {'Pixmap': os.path.join(os.path.dirname(os.path.abspath(__file__)), "Resources/Icons", 'Draft_AddPoint.svg'), 'MenuText':'Adicionar ponto', 'ToolTip':'Adicionar um ponto na linha para edição do caminho dos cabos'}
-
+        return {'Pixmap': os.path.join(WB.ICON_PATH, 'Draft_AddPoint.svg'), 'MenuText':'Adicionar ponto', 'ToolTip':'Adicionar um ponto na linha para edição do caminho dos cabos'}
 
 
 Gui.addCommand("ImportQET", ImportQET())

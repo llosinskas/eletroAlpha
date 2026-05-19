@@ -3,7 +3,15 @@
 # year 2023
 import os 
 
-from PySide import QtGui, QtCore, QtWidgets
+try:
+    from PySide2 import QtGui, QtCore, QtWidgets
+except ImportError:
+    try:
+        from PySide6 import QtGui, QtCore, QtWidgets
+    except ImportError:
+        from PySide import QtGui, QtCore
+        QtWidgets = QtGui
+
 import FreeCADGui as Gui
 import FreeCAD as App
 import Spreadsheet
@@ -18,12 +26,12 @@ except AttributeError:
         return s
 
 try:
-    _encoding = QtGui.QApplication.UnicodeUTF8
+    _encoding = QtWidgets.QApplication.UnicodeUTF8
     def _translate(context, text, disambig):
-        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+        return QtWidgets.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
     def _translate(context, text, disambig):
-        return QtGui.QApplication.translate(context, text, disambig)
+        return QtWidgets.QApplication.translate(context, text, disambig)
     
 
 class newProjetctEletrical:
@@ -34,21 +42,21 @@ class newProjetctEletrical:
             App.Console.PrintError('No active document found.\n')
             return 
         
-        folder = doc.addObject("App::DocumentObjectGroup", "Arquitetura_referencia")
-        folder = doc.addObject("App::DocumentObjectGroup", "Niveis")
-        folder = doc.addObject("App::DocumentObjectGroup", "Pontos_eletricos")
-        folder = doc.addObject("App::DocumentObjectGroup", "Quadros")
-        folder = doc.addObject("App::DocumentObjectGroup", "Tomadas")
-        folder = doc.addObject("App::DocumentObjectGroup", "Iluminacao")
-        folder = doc.addObject("App::DocumentObjectGroup", "Equipamentos")
-        folder = doc.addObject("App::DocumentObjectGroup", "Eletrodutos")
-        folder = doc.addObject("App::DocumentObjectGroup", "Eletrocalha")
-        folder = doc.addObject("App::DocumentObjectGroup", "Cabos")
-        folder = doc.addObject("App::DocumentObjectGroup", "Aterramento")
-        folder = doc.addObject("App::DocumentObjectGroup", "Tabelas_e_planilhas")
-        folder = doc.addObject("App::DocumentObjectGroup", "Detalhes")
-        folder = doc.addObject("App::DocumentObjectGroup", "Diagramas")
-        folder = doc.addObject("App::DocumentObjectGroup", "Projetos_2D")
+        doc.addObject("App::DocumentObjectGroup", "Arquitetura_referencia")
+        doc.addObject("App::DocumentObjectGroup", "Niveis")
+        doc.addObject("App::DocumentObjectGroup", "Pontos_eletricos")
+        doc.addObject("App::DocumentObjectGroup", "Quadros")
+        doc.addObject("App::DocumentObjectGroup", "Tomadas")
+        doc.addObject("App::DocumentObjectGroup", "Iluminacao")
+        doc.addObject("App::DocumentObjectGroup", "Equipamentos")
+        doc.addObject("App::DocumentObjectGroup", "Eletrodutos")
+        doc.addObject("App::DocumentObjectGroup", "Eletrocalha")
+        doc.addObject("App::DocumentObjectGroup", "Cabos")
+        doc.addObject("App::DocumentObjectGroup", "Aterramento")
+        doc.addObject("App::DocumentObjectGroup", "Tabelas_e_planilhas")
+        doc.addObject("App::DocumentObjectGroup", "Detalhes")
+        doc.addObject("App::DocumentObjectGroup", "Diagramas")
+        doc.addObject("App::DocumentObjectGroup", "Projetos_2D")
                 
         doc.recompute()
 
@@ -62,20 +70,20 @@ class CreateModel:
         if not os.path.exists(pasta_destino):
             os.makedirs(pasta_destino)
         
-        nome, ok = QtGui.QInputDialog.getText(None, "Salvar desenho", "Digite o nome do arquivo:")
+        nome, ok = QtWidgets.QInputDialog.getText(None, "Salvar desenho", "Digite o nome do arquivo:")
         
         if ok and nome.strip():
             caminho = os.path.join(pasta_destino, nome.strip()+".FCStd")
             doc = App.newDocument(nome.strip())
-            folder = doc.addObject("App::DocumentObjectGroup", "Simbolo 2D")
-            folder = doc.addObject("App::DocumentObjectGroup", "Foto")
-            folder = doc.addObject("App::DocumentObjectGroup", "Modelo 3D")
-            folder = doc.addObject("App::DocumentObjectGroup", "Descricao")
-            folder = doc.addObject("App::DocumentObjectGroup", "Detalhes 2D")
+            doc.addObject("App::DocumentObjectGroup", "Simbolo 2D")
+            doc.addObject("App::DocumentObjectGroup", "Foto")
+            doc.addObject("App::DocumentObjectGroup", "Modelo 3D")
+            doc.addObject("App::DocumentObjectGroup", "Descricao")
+            doc.addObject("App::DocumentObjectGroup", "Detalhes 2D")
             App.ActiveDocument.saveAs(caminho)
             
         else:
-            QtGui.QMessageBox.warning(None, "Cancelado", "Operação cancelada")
+            QtWidgets.QMessageBox.warning(None, "Cancelado", "Operação cancelada")
                 
         doc.recompute()
 
@@ -115,20 +123,9 @@ class addCircuit(object):
     
     def Activated(self):
         form = InsertCircuit()
-   
         form.exec_()
-        # doc = App.ActiveDocument
-        
-        # planilha =""
-        # if doc.getObject("Circuitos"):
-        #     planilha = doc.getObject("Circuitos")
-        # else:
-        #     newSpreadsheet.Activated(self)
-        #     planilha = doc.getObject("Circuitos")
-
         
     def IsActive(self):
-       
         return True
     def GetResources(self):
         return {
@@ -160,9 +157,9 @@ class listElements:
         else:
             arquivos = [f for f in os.listdir(pasta_destino) if f.endswith(".FCStd")]
             if not arquivos:
-                QtGui.QMessageBox.information(None, "Nenhum arquivo", "Não há arquivos FCStd na pasta.")
+                QtWidgets.QMessageBox.information(None, "Nenhum arquivo", "Não há arquivos FCStd na pasta.")
             else:
-                item, ok = QtGui.QInputDialog.getItem(None, "Abrir desenho", "Escolha o arquivo:", arquivos, editable=False)
+                item, ok = QtWidgets.QInputDialog.getItem(None, "Abrir desenho", "Escolha o arquivo:", arquivos, editable=False)
 
                 if ok:
 
@@ -171,45 +168,23 @@ class listElements:
                         App.Console.PrintError('No active document found.\n')
                         return 
                     caminho = os.path.join(pasta_destino, item)
-                    # App.openDocument(caminho)
                     item_sem = item.split(".")[0]
                     folder = doc.addObject("App::DocumentObjectGroup", item_sem)
                     doc2 = App.open(caminho)
                     
                     for obj in doc2.Objects:
-                        
-                        
-                        
                         if not listElements.is_name_equals(doc, obj):
-                            if not folder.isChildOf(copy):    
-                                copy = doc.copyObject(obj)
-                                folder.addObject(copy)
-                        
-                        
-                        # if hasattr(copy, 'getParentGroup'):
-                            
-                        #     if not listElements.is_descendant(obj, folder):
-                        #         parent = copy.getParentGroup()
-                            
-                        #     if parent:
-                        #         parent.removeObject(copy)                     
+                            copy = doc.copyObject(obj)
+                            folder.addObject(copy)
                         
                     App.closeDocument(item_sem)
                     doc.recompute()
-    
-                    
-
-                    # doc.mergeProject(caminho)
-                    
-                    
-                    
         
     def GetResources(self):
         return {
             'Pixmap': os.path.join(WB.ICON_PATH, 'listElements.svg'), 
             'MenuText': "Listar Elementos", 
             'ToolTip':"Listar elementos elétricos"}
-
 
 
 # Adiciona os camandos para o gerenciamento de comando do FreeCAD 

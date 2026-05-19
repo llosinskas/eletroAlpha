@@ -1,0 +1,190 @@
+import FreeCAD as App
+import FreeCADGui as Gui
+import Part
+import os
+import freecad.Circuits as WB
+
+try:
+    from PySide2 import QtWidgets
+except ImportError:
+    try:
+        from PySide6 import QtWidgets
+    except ImportError:
+        from PySide import QtGui as QtWidgets
+
+class Generate3DConduits:
+    """Comando para gerar os tubos 3D (Sweeps) a partir dos ConduitPaths."""
+    
+    def Activated(self):
+        doc = App.activeDocument()
+        if not doc:
+            QtWidgets.QMessageBox.warning(None, "Erro", "Nenhum documento FreeCAD aberto.")
+            return
+            
+        selected_objs = Gui.Selection.getSelection()
+        
+        # Retrocompatibilidade se não houver seleção
+        if not selected_objs:
+            selected_objs = [obj for obj in doc.Objects if hasattr(obj, "Proxy") and getattr(obj.Proxy, "Type", "") == "ConduitPath"]
+            
+        if not selected_objs:
+            QtWidgets.QMessageBox.information(None, "Aviso", "Selecione uma linha (Wire) para gerar o eletroduto 3D.")
+            return
+            
+        tabela_diametros = {
+            "1/2": 21.3, "3/4": 26.9, "1": 33.7, "1 1/4": 42.4,
+            "1 1/2": 48.3, "2": 60.3, "3": 88.9, "4": 114.3
+        }
+        
+        tabela_cores = {
+            "Amarelo": (1.0, 0.8, 0.0), "Preto": (0.1, 0.1, 0.1), "Cinza": (0.6, 0.6, 0.6),
+            "Vermelho": (0.8, 0.1, 0.1), "Laranja": (1.0, 0.5, 0.0), "Azul": (0.1, 0.3, 0.8),
+            "Branco": (0.95, 0.95, 0.95), "Verde": (0.1, 0.7, 0.2)
+        }
+            
+        # --- PASSO 1: Injetar propriedades e atualizar curvas base (Fillet nativo) ---
+        for path_obj in selected_objs:
+            if not hasattr(path_obj, "Altura3D"):
+                path_obj.addProperty("App::PropertyDistance", "Altura3D", "Conduit", "Altura em Z do eletroduto").Altura3D = 2800.0
+                
+            if not hasattr(path_obj, "Diametro"):
+                path_obj.addProperty("App::PropertyEnumeration", "Diametro", "Conduit", "Tamanho nominal do eletroduto")
+                path_obj.Diametro = ["1/2", "3/4", "1", "1 1/4", "1 1/2", "2", "3", "4"]
+                path_obj.Diametro = "3/4"
+                
+            if not hasattr(path_obj, "Tipo"):
+                path_obj.addProperty("App::PropertyEnumeration", "Tipo", "Conduit", "Flexível ou Rígido")
+                path_obj.Tipo = ["Flexível", "Rígido"]
+                path_obj.Tipo = "Flexível"
+                
+            if not hasattr(path_obj, "Cor"):
+                path_obj.addProperty("App::PropertyEnumeration", "Cor", "Conduit", "Cor do tubo")
+                path_obj.Cor = list(tabela_cores.keys())
+                path_obj.Cor = "Amarelo"
+            
+            # Se for Draft Wire, aplica Fillet automaticamente
+            if hasattr(path_obj, "FilletRadius"):
+                diam_ext = tabela_diametros.get(path_obj.Diametro, 26.9)
+                raio = diam_ext / 2.0
+                if path_obj.Tipo == "Flexível":
+                    path_obj.FilletRadius = raio * 15 # Curva suave
+                else:
+                    path_obj.FilletRadius = 0.0 # Rígido (quina viva)
+                    
+        # Aplica as mudanças nos Wires antes de ler as curvas
+        doc.recompute()
+        
+        # --- PASSO 2: Geração da Varredura 3D (Pipe) ---
+        count = 0
+        tomadas = [obj for obj in doc.Objects if hasattr(obj, 'tipo') and getattr(obj, 'tipo') == "tomada"]
+        
+        for path_obj in selected_objs:
+            if not hasattr(path_obj, "Shape") or path_obj.Shape.isNull() or len(path_obj.Shape.Edges) == 0:
+                continue
+                
+            diam_ext = tabela_diametros.get(path_obj.Diametro, 26.9)
+            raio = diam_ext / 2.0
+            cor_rgb = tabela_cores.get(path_obj.Cor, (0.7, 0.7, 0.7))
+            
+            # Copia a forma para não alterar o objeto base
+            elevated_wire = path_obj.Shape.copy()
+            if elevated_wire.ShapeType == "Edge":
+                elevated_wire = Part.Wire([elevated_wire])
+            elif elevated_wire.ShapeType == "Compound" and len(elevated_wire.Wires) > 0:
+                elevated_wire = elevated_wire.Wires[0]
+            elif elevated_wire.ShapeType != "Wire":
+                try:
+                    elevated_wire = Part.Wire(elevated_wire.Edges)
+                except Exception as e:
+                    App.Console.PrintWarning(f"Não foi possível converter a forma de {path_obj.Name} em Wire: {e}\n")
+                    continue
+                
+            # Eleva o fio para a Altura3D
+            z_atual = elevated_wire.Vertexes[0].Point.z
+            z_offset = path_obj.Altura3D.Value - z_atual
+            if abs(z_offset) > 1e-4:
+                elevated_wire.translate(App.Vector(0, 0, z_offset))
+            
+            first_edge = elevated_wire.Edges[0]
+            if first_edge.Length < 1e-5:
+                continue
+                
+            v_start = first_edge.valueAt(first_edge.FirstParameter)
+            v_dir = first_edge.tangentAt(first_edge.FirstParameter)
+            
+            circle = Part.makeCircle(raio, v_start, v_dir)
+            profile_wire = Part.Wire([circle])
+            
+            old_pipe_name = f"{path_obj.Name}_3D"
+            if doc.getObject(old_pipe_name):
+                doc.removeObject(old_pipe_name)
+            
+            try:
+                pipe = Part.Wire(elevated_wire).makePipeShell([profile_wire], True, True)
+                pipes_list = [pipe]
+                
+                # --- Verifica se deve descer/subir para alguma tomada ---
+                pts_to_check = path_obj.Points if hasattr(path_obj, "Points") else [v.Point for v in path_obj.Shape.Vertexes]
+                matched_tomadas = set()
+                
+                for pt in pts_to_check:
+                    vx, vy = pt.x, pt.y
+                    for t in tomadas:
+                        if t.Name in matched_tomadas:
+                            continue
+                        tx, ty = t.Placement.Base.x, t.Placement.Base.y
+                        
+                        # Se as coordenadas X e Y baterem (com 10mm de tolerância)
+                        if (App.Vector(vx, vy, 0) - App.Vector(tx, ty, 0)).Length < 10.0:
+                            matched_tomadas.add(t.Name)
+                            
+                            z_tomada = float(t.altura_piso) if hasattr(t, "altura_piso") else 0.0
+                            z_teto = path_obj.Altura3D.Value
+                            
+                            p_top = App.Vector(tx, ty, z_teto)
+                            p_bottom = App.Vector(tx, ty, z_tomada)
+                            
+                            if (p_top - p_bottom).Length > 1e-2:
+                                drop_edge = Part.makeLine(p_top, p_bottom)
+                                drop_wire = Part.Wire([drop_edge])
+                                
+                                # Garante que o círculo de perfil aponte na direção da linha
+                                v_drop = p_bottom - p_top
+                                v_drop.normalize()
+                                c_drop = Part.makeCircle(raio, p_top, v_drop)
+                                p_drop = Part.Wire([c_drop])
+                                
+                                try:
+                                    pipe_drop = drop_wire.makePipe(p_drop)
+                                    pipes_list.append(pipe_drop)
+                                except Exception as e:
+                                    App.Console.PrintWarning(f"Falha ao gerar descida para {t.Name}: {e}\n")
+                
+                # Combina tudo em um único objeto (Compound)
+                if len(pipes_list) > 1:
+                    final_shape = Part.makeCompound(pipes_list)
+                else:
+                    final_shape = pipes_list[0]
+                
+                pipe_obj = doc.addObject("Part::Feature", old_pipe_name)
+                pipe_obj.Shape = final_shape
+                pipe_obj.Label = f"Eletroduto 3D ({path_obj.Diametro})"
+                pipe_obj.ViewObject.ShapeColor = cor_rgb
+                count += 1
+            except Exception as e:
+                App.Console.PrintError(f"Erro ao gerar tubo 3D para {path_obj.Name}: {e}\n")
+                
+        doc.recompute()
+        App.Console.PrintMessage(f"{count} eletrodutos 3D gerados com sucesso.\n")
+        
+    def IsActive(self):
+        return True
+        
+    def GetResources(self):
+        return {
+            'Pixmap': os.path.join(WB.ICON_PATH, 'conduite.svg'), # Pode trocar por um icone de tubo 3D depois
+            'MenuText': 'Gerar Eletrodutos 3D',
+            'ToolTip': 'Converte caminhos de eletrodutos em tubos 3D'
+        }
+
+Gui.addCommand("Generate3DConduits", Generate3DConduits())

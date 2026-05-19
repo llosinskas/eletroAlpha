@@ -6,8 +6,17 @@ Author: Lucas Losinskas
 """
 
 import os
-from freecad import app
-from freecad import gui
+import FreeCAD as app
+import FreeCADGui as gui
+
+try:
+    from PySide2 import QtCore
+except ImportError:
+    try:
+        from PySide6 import QtCore
+    except ImportError:
+        # Fallback para o shim legado do FreeCAD
+        from PySide import QtCore
 
 __dirname__ = os.path.dirname(__file__)
 
@@ -19,8 +28,16 @@ gui.updateLocale()
 class CircuitsWorkbench(gui.Workbench):
     """Bancada para a criação e gerenciamento de projetos elétricos."""
 
-    MenuText = app.Qt.translate("Workbench", "Engenharia")
-    ToolTip = app.Qt.translate(
+    try:
+        from PySide2 import QtCore as _QtCore
+    except ImportError:
+        try:
+            from PySide6 import QtCore as _QtCore
+        except ImportError:
+            from PySide import QtCore as _QtCore
+
+    MenuText = _QtCore.QCoreApplication.translate("Workbench", "Engenharia")
+    ToolTip = _QtCore.QCoreApplication.translate(
         "Workbench",
         "Bancada para projetos elétricos residenciais, industriais e comerciais",
     )
@@ -114,6 +131,7 @@ class CircuitsWorkbench(gui.Workbench):
         "InsertEquipaments",
         "InsertWire",
         "InsertConduit",
+        "Generate3DConduits",
         "InsertCableTray",
     ]
 
@@ -143,7 +161,7 @@ class CircuitsWorkbench(gui.Workbench):
 
     # ==========================================
     # Toolbars com labels traduzíveis
-    QT_TRANSLATE_NOOP = app.Qt.QT_TRANSLATE_NOOP
+    QT_TRANSLATE_NOOP = _QtCore.QT_TRANSLATE_NOOP
     TOOLBARS = [
         (QT_TRANSLATE_NOOP("Workbench", "Snap"), SNAP_TOOLS),
         (QT_TRANSLATE_NOOP("Workbench", "Desenho"), DRAWING_TOOLS),
@@ -174,6 +192,7 @@ class CircuitsWorkbench(gui.Workbench):
             new_project,
             projeto_eletrico,
             insert_component,
+            generate_3d,
             gerar_unifilar,
             reports,
             tools,
